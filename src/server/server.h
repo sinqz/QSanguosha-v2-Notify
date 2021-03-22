@@ -7,30 +7,10 @@ class QLabel;
 class QRadioButton;
 class ServerSocket;
 class ClientSocket;
-class QtUpnpPortMapping;
 
 #include "src/pch.h"
 
 class Package;
-
-class Select3v3GeneralDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    Select3v3GeneralDialog(QDialog *parent);
-
-private:
-    QTabWidget *tab_widget;
-    QSet<QString> ex_generals;
-
-    void fillTabWidget();
-    void fillListWidget(QListWidget *list, const Package *pack);
-
-private slots:
-    void save3v3Generals();
-    void toggleCheck();
-};
 
 class BanlistDialog : public QDialog
 {
@@ -77,9 +57,6 @@ private:
     QLayout *createButtonLayout();
 
     QGroupBox *createGameModeBox();
-    QGroupBox *create1v1Box();
-    QGroupBox *create3v3Box();
-    QGroupBox *createXModeBox();
 
     QLineEdit *server_name_edit;
     QSpinBox *timeout_spinbox;
@@ -100,13 +77,6 @@ private:
     QCheckBox *forbid_same_ip_checkbox;
     QCheckBox *disable_chat_checkbox;
     QCheckBox *second_general_checkbox;
-    QCheckBox *same_checkbox;
-    QCheckBox *basara_checkbox;
-    QCheckBox *hegemony_checkbox;
-    QLabel *hegemony_maxchoice_label;
-    QSpinBox *hegemony_maxchoice_spinbox;
-    QLabel *hegemony_maxshown_label;
-    QSpinBox *hegemony_maxshown_spinbox;
     QLabel *max_hp_label;
     QComboBox *max_hp_scheme_ComboBox;
     QLabel *scheme0_subtraction_label;
@@ -128,17 +98,11 @@ private:
     QSpinBox *ai_delay_ad_spinbox;
     QCheckBox *surrender_at_death_checkbox;
     QCheckBox *luck_card_checkbox;
-    QRadioButton *official_3v3_radiobutton;
-    QComboBox *official_3v3_ComboBox;
     QComboBox *role_choose_ComboBox;
-    QCheckBox *exclude_disaster_checkbox;
-    QComboBox *official_1v1_ComboBox;
     QCheckBox *kof_using_extension_checkbox;
     QCheckBox *kof_card_extension_checkbox;
     QComboBox *role_choose_xmode_ComboBox;
     QCheckBox *disable_lua_checkbox;
-    QCheckBox *checkBoxUpnp;
-    QCheckBox *checkBoxAddToListServer;
     QPushButton *select_all_generals_button;
     QPushButton *deselect_all_generals_button;
     QPushButton *select_reverse_generals_button;
@@ -162,13 +126,11 @@ private slots:
     void onConsoleButtonClicked();
     void onServerButtonClicked();
     void onDetectButtonClicked();
-    void select3v3Generals();
-    void edit1v1Banlist();
     void updateButtonEnablility(QAbstractButton *button);
 
     void doCustomAssign();
-    void doBossModeCustomAssign();
     void setMiniCheckBox();
+    void editBanlist();
 
     void selectAllGenerals();
     void deselectAllGenerals();
@@ -177,30 +139,6 @@ private slots:
     void selectAllCards();
     void deselectAllCards();
     void selectReverseCards();
-};
-
-class BossModeCustomAssignDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    BossModeCustomAssignDialog(QWidget *parent);
-    void config();
-
-private:
-    QCheckBox *diff_revive_checkBox;
-    QCheckBox *diff_recover_checkBox;
-    QCheckBox *diff_draw_checkBox;
-    QCheckBox *diff_reward_checkBox;
-    QCheckBox *diff_incMaxHp_checkBox;
-    QCheckBox *diff_decMaxHp_checkBox;
-
-    QCheckBox *experience_checkBox;
-    QCheckBox *optional_boss_checkBox;
-    QCheckBox *endless_checkBox;
-
-    QLabel *turn_limit_label;
-    QSpinBox *turn_limit_spinBox;
 };
 
 class Scenario;
@@ -220,7 +158,6 @@ public:
     void daemonize();
     Room *createNewRoom();
     void signupPlayer(ServerPlayer *player);
-    void checkUpnpAndListServer();
 
 private:
     ServerSocket *server;
@@ -232,23 +169,11 @@ private:
     bool created_successfully;
 	int playerCount;
 
-    QtUpnpPortMapping *upnpPortMapping;
-    QNetworkAccessManager networkAccessManager;
-    QNetworkReply *networkReply;
-    bool serverListFirstReg;
-    int tryTimes;
-
 private slots:
     void processNewConnection(ClientSocket *socket);
     void processRequest(const char *request);
     void cleanup();
     void gameOver();
-
-    void upnpFinished();
-    void upnpTimeout();
-    void listServerReply();
-    void addToListServer();
-    void sendListServerRequest();
 
 signals:
     void server_message(const QString &);

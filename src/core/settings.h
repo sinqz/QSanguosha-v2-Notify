@@ -34,9 +34,6 @@ public:
     bool DisableChat;
     bool FreeAssignSelf;
     bool Enable2ndGeneral;
-    bool EnableSame;
-    bool EnableBasara;
-    bool EnableHegemony;
     int MaxHpScheme;
     int Scheme0Subtraction;
     bool PreventAwakenBelow3;
@@ -50,15 +47,6 @@ public:
     bool EnableLuckCard;
     ushort ServerPort;
     bool DisableLua;
-
-    QStringList BossGenerals;
-    int BossLevel;
-    QStringList BossEndlessSkills;
-    QMap<QString, int> BossExpSkills;
-
-    QMap<QString, QString> JianGeDefenseKingdoms;
-    QMap<QString, QStringList> JianGeDefenseMachine;
-    QMap<QString, QStringList> JianGeDefenseSoul;
 
     // client side
     QString HostAddress;

@@ -196,7 +196,7 @@ bool ServerPlayer::askForSkillInvoke(const QString &skill_name, const QVariant &
     return room->askForSkillInvoke(this, skill_name, data);
 }
 
-bool ServerPlayer::askForSkillInvoke(const Skill *skill, const QVariant &data /* = QVariant() */)
+bool ServerPlayer::askForSkillInvoke(const Skill *skill, const QVariant &data)
 {
     Q_ASSERT(skill != NULL);
     return askForSkillInvoke(skill->objectName(), data);
@@ -323,14 +323,6 @@ QString ServerPlayer::findReasonable(const QStringList &generals, bool no_unreas
             } else {
                 if (BanPair::isBanned(name)) continue;
             }
-
-            if (Config.EnableHegemony && getGeneral()
-                && getGeneral()->getKingdom() != Sanguosha->getGeneral(name)->getKingdom())
-                continue;
-        }
-        if (Config.EnableBasara) {
-            QStringList ban_list = Config.value("Banlist/Basara").toStringList();
-            if (ban_list.contains(name)) continue;
         }
         if (Config.GameMode == "zombie_mode") {
             QStringList ban_list = Config.value("Banlist/Zombie").toStringList();
@@ -1284,10 +1276,7 @@ void ServerPlayer::gainAnExtraTurn()
         if (triggerEvent == TurnBroken) {
             if (getPhase() != Player::NotActive) {
                 const GameRule *game_rule = NULL;
-                if (room->getMode() == "04_1v3")
-                    game_rule = qobject_cast<const GameRule *>(Sanguosha->getTriggerSkill("hulaopass_mode"));
-                else
-                    game_rule = qobject_cast<const GameRule *>(Sanguosha->getTriggerSkill("game_rule"));
+                game_rule = qobject_cast<const GameRule *>(Sanguosha->getTriggerSkill("game_rule"));
                 if (game_rule) {
                     QVariant v;
                     game_rule->trigger(EventPhaseEnd, room, this, v);
@@ -1307,7 +1296,7 @@ void ServerPlayer::copyFrom(ServerPlayer *sp)
 
     b->handcards = QList<const Card *>(a->handcards);
     b->phases = QList<ServerPlayer::Phase>(a->phases);
-    b->selected = QStringList(a->selected);
+    //b->selected = QStringList(a->selected);
 
     Player *c = b;
     c->copyFrom(a);

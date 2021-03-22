@@ -29,13 +29,6 @@ config = {
 		"LimitationBroken",
 		"SPCard",
 		"Nostalgia",
-		"New3v3Card",
-		"New3v3_2013Card",
-		"New1v1Card",
-		"YitianCard",
-	--	"Joy",
-		"Disaster",
-		"JoyEquip",
 
 		"Standard",
 		"Wind",
@@ -47,34 +40,17 @@ config = {
 		"YJCM2012",
 		"YJCM2013",
 		"YJCM2014",
-		"YJCM2015",
-		"Assassins",
-		"Special3v3",
-		"Special3v3Ext",
-		"Special1v1",
-		"Special1v1Ext",
 		"SP",
-		"OL",
-		"TaiwanSP",
-		"TaiwanYJCM" ,
-		"Miscellaneous",
 		"BGM",
-		"BGMDIY",
-		"Ling",
 		"Hegemony",
 		"HFormation",
 		"HMomentum",
-		"HegemonySP",
 		"JSP",
 		"NostalStandard",
 		"NostalWind",
 		"NostalYJCM",
 		"NostalYJCM2012",
 		"NostalYJCM2013",
-		"JianGeDefense",
-		"BossMode",
-		"Yitian",
-		"Wisdom",
 		"Test"
 	},
 
@@ -114,39 +90,8 @@ config = {
 	roles_ban = {
 	},
 
-	kof_ban = {
-		"sunquan",
-	},
-
-	bossmode_ban = {
-		"caopi",
-		"manchong",
-		"xusheng",
-		"yuji",
-		"caiwenji",
-		"zuoci",
-		"lusu",
-		"bgm_diaochan",
-		"shenguanyu",
-		"nos_yuji",
-		"nos_zhuran"
-	},
-
-	basara_ban = {
-		"dongzhuo",
-		"zuoci",
-		"shenzhugeliang",
-		"shenlvbu",
-		"bgm_lvmeng",
-		"zhanggongqi"
-	},
-
-	hegemony_ban = {
-		"xiahoujuan"
-	},
-
 	pairs_ban = {
-		"huatuo", "zuoci", "bgm_pangtong", "kof_nos_huatuo", "nos_huatuo",
+		"huatuo", "zuoci", "bgm_pangtong", "nos_huatuo",
 		"simayi+dengai",
 		"xiahoudun+luxun", "xiahoudun+zhurong", "xiahoudun+zhangchunhua", "xiahoudun+nos_luxun", "xiahoudun+nos_zhangchunhua",
 		"caoren+shenlvbu", "caoren+caozhi", "caoren+bgm_diaochan", "caoren+bgm_caoren", "caoren+nos_caoren",
@@ -174,7 +119,7 @@ config = {
 		"yuanshao+nos_huangyueying", "yuanshao+nos_huanggai",
 		"yanliangwenchou+zhangchunhua", "yanliangwenchou+nos_huangyueying", "yanliangwenchou+nos_huanggai", "yanliangwenchou+nos_luxun",
 			"yanliangwenchou+nos_zhangchunhua",
-		"dongzhuo+shenzhaoyun", "dongzhuo+wangyi", "dongzhuo+diy_wangyuanji", "dongzhuo+nos_huanggai", "dongzhuo+nos_zhangchunhua", "dongzhuo+nos_wangyi",
+		"dongzhuo+shenzhaoyun", "dongzhuo+wangyi", "dongzhuo+nos_huanggai", "dongzhuo+nos_zhangchunhua", "dongzhuo+nos_wangyi",
 		"st_huaxiong+nos_huanggai",
 		"shencaocao+caozhi",
 		"shenlvbu+caozhi", "shenlvbu+liaohua", "shenlvbu+bgm_diaochan", "shenlvbu+bgm_caoren", "shenlvbu+nos_caoren",
@@ -182,8 +127,8 @@ config = {
 		"caozhi+bgm_diaochan", "caozhi+bgm_caoren", "caozhi+nos_caoren",
 		"gaoshun+zhangchunhua", "gaoshun+nos_zhangchunhua",
 		"wuguotai+zhangchunhua", "wuguotai+caochong", "wuguotai+nos_huanggai", "wuguotai+nos_zhangchunhua", "wuguotai+nos_caochong",
-		"zhangchunhua+guanxingzhangbao", "zhangchunhua+guanping", "zhangchunhua+guyong", "zhangchunhua+xiahouba", "zhangchunhua+zhugeke",
-			"zhangchunhua+heg_luxun", "zhangchunhua+neo_zhangfei", "zhangchunhua+nos_liubei", "zhangchunhua+nos_zhangfei",
+		"zhangchunhua+guanxingzhangbao", "zhangchunhua+guanping", "zhangchunhua+guyong", "zhangchunhua+xiahouba",
+			"zhangchunhua+heg_luxun", "zhangchunhua+nos_liubei", "zhangchunhua+nos_zhangfei",
 			"zhangchunhua+nos_yuji", "zhangchunhua+nos_guanxingzhangbao",
 		"guanxingzhangbao+bgm_zhangfei", "guanxingzhangbao+heg_sunce", "guanxingzhangbao+nos_huanggai", "guanxingzhangbao+nos_luxun", "guanxingzhangbao+nos_zhangchunhua",
 		"huaxiong+nos_huanggai",
@@ -193,16 +138,13 @@ config = {
 		"guyong+nos_luxun", "guyong+nos_zhangchunhua",
 		"yuanshu+nos_lvmeng",
 		"xiahouba+nos_huanggai", "xiahouba+nos_zhangchunhua",
-		"zhugedan+diy_wangyuanji", "zhugedan+nos_zhangchunhua", "zhugedan+nos_wangyi",
-		"zhugeke+nos_zhangchunhua",
+		"zhugedan+nos_zhangchunhua", "zhugedan+nos_wangyi",
 		"bgm_diaochan+bgm_caoren", "bgm_diaochan+nos_caoren",
 		"bgm_caoren+nos_caoren",
 		"bgm_zhangfei+nos_guanxingzhangbao",
-		"diy_wangyuanji+heg_dongzhuo",
 		"hetaihou+nos_zhuran",
 		"heg_sunce+nos_guanxingzhangbao",
 		"heg_dongzhuo+nos_zhangchunhua", "heg_dongzhuo+nos_wangyi",
-		"neo_zhangfei+nos_huanggai", "neo_zhangfei+nos_zhangchunhua",
 		"nos_liubei+nos_luxun", "nos_liubei+nos_zhangchunhua",
 		"nos_zhangfei+nos_huanggai", "nos_zhangfei+nos_zhangchunhua",
 		"nos_huangyueying+nos_huanggai",
@@ -272,7 +214,6 @@ config = {
 		"yuanshu->tw_yuanshu",
 		"sp_yuejin->yuejin",
 		"zhenji->sp_zhenji|heg_zhenji|tw_zhenji",
-		"zhugeke->diy_zhugeke",
 		"zhugeliang->heg_zhugeliang|tw_zhugeliang",
 		"zhugejin->sp_zhugejin" ,
 		"sp_ganfuren->ganfuren"
@@ -289,80 +230,4 @@ config = {
 
 	extra_default_lords = {
 	},
-
-	bossmode_default_boss = {
-		"boss_chi+boss_mei+boss_wang+boss_liang",
-		"boss_niutou+boss_mamian",
-		"boss_heiwuchang+boss_baiwuchang",
-		"boss_luocha+boss_yecha"
-	},
-
-	bossmode_endless_skills = {
-		"bossguimei", "bossdidong", "nosenyuan", "bossshanbeng+bossbeiming+huilei+bossmingbao",
-		"bossluolei", "bossguihuo", "bossbaolian", "mengjin", "bossmanjia+bazhen",
-		"bossxiaoshou", "bossguiji", "fankui", "bosslianyu", "nosjuece",
-		"bosstaiping+shenwei", "bosssuoming", "bossxixing", "bossqiangzheng",
-		"bosszuijiu", "bossmodao", "bossqushou", "yizhong", "kuanggu",
-		"bossmojian", "bossdanshu", "shenji", "wushuang", "wansha"
-	},
-
-	bossmode_exp_skills = {
-		"mashu:15",
-		"tannang:25",
-		"yicong:25",
-		"feiying:30",
-		"yingyang:30",
-		"zhenwei:40",
-		"nosqicai:40",
-		"nosyingzi:40",
-		"zongshi:40",
-		"qicai:45",
-		"wangzun:45",
-		"yingzi:50",
-		"kongcheng:50",
-		"nosqianxun:50",
-		"weimu:50",
-		"jie:50",
-		"huoshou:50",
-		"hongyuan:55",
-		"dangxian:55",
-		"xinzhan:55",
-		"juxiang:55",
-		"wushuang:60",
-		"xunxun:60",
-		"zishou:60",
-		"jingce:60",
-		"shengxi:60",
-		"zhichi:60",
-		"bazhen:60",
-		"yizhong:65",
-		"jieyuan:70",
-		"mingshi:70",
-		"tuxi:70",
-		"guanxing:70",
-		"juejing:75",
-		"jiangchi:75",
-		"bosszuijiu:80",
-		"shelie:80",
-		"gongxin:80",
-		"fenyong:85",
-		"kuanggu:85",
-		"yongsi:90",
-		"zhiheng:90",
-	},
-
-	jiange_defense_kingdoms = {
-		loyalist = "shu",
-		rebel = "wei",
-	},
-
-	jiange_defense_machine = {
-		wei = "jg_machine_tuntianchiwen+jg_machine_shihuosuanni+jg_machine_fudibian+jg_machine_lieshiyazi",
-		shu = "jg_machine_yunpingqinglong+jg_machine_jileibaihu+jg_machine_lingjiaxuanwu+jg_machine_chiyuzhuque",
-	},
-
-	jiange_defense_soul = {
-		wei = "jg_soul_caozhen+jg_soul_simayi+jg_soul_xiahouyuan+jg_soul_zhanghe",
-		shu = "jg_soul_liubei+jg_soul_zhugeliang+jg_soul_huangyueying+jg_soul_pangtong",
-	}
 }

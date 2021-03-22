@@ -415,7 +415,7 @@ bool Player::hasSkill(const QString &skill_name, bool include_lose) const
         || acquired_skills.contains(skill_name);
 }
 
-bool Player::hasSkill(const Skill *skill, bool include_lose /* = false */) const
+bool Player::hasSkill(const Skill *skill, bool include_lose) const
 {
     Q_ASSERT(skill != NULL);
     return hasSkill(skill->objectName(), include_lose);
@@ -473,7 +473,7 @@ bool Player::hasLordSkill(const QString &skill_name, bool include_lose) const
         return true;
 
     QString mode = getGameMode();
-    if (mode == "06_3v3" || mode == "06_XMode" || mode == "02_1v1" || Config.value("WithoutLordskill", false).toBool())
+    if (Config.value("WithoutLordskill", false).toBool())
         return false;
 
     if (ServerInfo.EnableHegemony)
@@ -485,7 +485,7 @@ bool Player::hasLordSkill(const QString &skill_name, bool include_lose) const
     return false;
 }
 
-bool Player::hasLordSkill(const Skill *skill, bool include_lose /* = false */) const
+bool Player::hasLordSkill(const Skill *skill, bool include_lose) const
 {
     Q_ASSERT(skill != NULL);
     return hasLordSkill(skill->objectName(), include_lose);
@@ -1053,8 +1053,8 @@ QSet<const TriggerSkill *> Player::getTriggerSkills() const
 
 QSet<const Skill *> Player::getSkills(bool include_equip, bool visible_only) const
 {
-    QList<const Skill *> tmp = getSkillList(include_equip, visible_only);
-    return QSet<const Skill *>(tmp.begin(), tmp.end());
+    QT_WARNING_DISABLE_DEPRECATED
+    return getSkillList(include_equip, visible_only).toSet();
 }
 
 QList<const Skill *> Player::getSkillList(bool include_equip, bool visible_only) const
@@ -1074,8 +1074,7 @@ QList<const Skill *> Player::getSkillList(bool include_equip, bool visible_only)
 
 QSet<const Skill *> Player::getVisibleSkills(bool include_equip) const
 {
-    QList<const Skill *> tmp = getVisibleSkillList(include_equip);
-    return QSet<const Skill *>(tmp.begin(), tmp.end());
+    return getVisibleSkillList(include_equip).toSet();
 }
 
 QList<const Skill *> Player::getVisibleSkillList(bool include_equip) const

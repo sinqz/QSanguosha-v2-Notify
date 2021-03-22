@@ -382,7 +382,7 @@ bool GameStartSkill::trigger(TriggerEvent, Room *, ServerPlayer *player, QVarian
     return false;
 }
 
-RetrialSkill::RetrialSkill(const QString &name, bool exchange /* = false */)
+RetrialSkill::RetrialSkill(const QString &name, bool exchange)
     : TriggerSkill(name)
 {
     events << AskForRetrial;
@@ -411,7 +411,6 @@ bool SPConvertSkill::triggerable(const ServerPlayer *target) const
 {
     if (target == NULL) return false;
     if (!Config.value("EnableSPConvert", true).toBool()) return false;
-    if (Config.EnableHegemony) return false;
     if (!isNormalGameMode(Config.GameMode)) return false;
     bool available = false;
     foreach (QString to_gen, to_list) {

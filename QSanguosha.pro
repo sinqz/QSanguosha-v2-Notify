@@ -3,7 +3,7 @@
 # -------------------------------------------------
 TARGET = QSanguosha
 QT += network widgets
-!winrt: QT += qml
+QT += qml
 TEMPLATE = app
 
 CONFIG(release,debug|release){
@@ -72,9 +72,6 @@ SOURCES += \
     src/server/generalselector.cpp \
     src/server/room.cpp \
     src/server/roomthread.cpp \
-    src/server/roomthread1v1.cpp \
-    src/server/roomthread3v3.cpp \
-    src/server/roomthreadxmode.cpp \
     src/server/server.cpp \
     src/server/serverplayer.cpp \
     src/ui/button.cpp \
@@ -108,34 +105,20 @@ SOURCES += \
     src/ui/table-pile.cpp \
     src/ui/timed-progressbar.cpp \
     src/ui/ui-utils.cpp \
-    src/package/assassins.cpp \
     src/package/bgm.cpp \
-    src/package/boss.cpp \
     src/package/fire.cpp \
     src/package/h-formation.cpp \
     src/package/h-momentum.cpp \
-    src/package/jiange-defense.cpp \
-    src/package/joy.cpp \
-    src/package/ling.cpp \
     src/package/mountain.cpp \
     src/package/sp.cpp \
-    src/package/special1v1.cpp \
-    src/package/special3v3.cpp \
-    src/package/wisdom.cpp \
-    src/package/yitian.cpp \
     src/package/yjcm.cpp \
     src/package/yjcm2012.cpp \
     src/package/yjcm2013.cpp \
     src/package/yjcm2014.cpp \
-    src/package/yjcm2015.cpp \
     swig/sanguosha_wrap.cxx \
     src/dialog/banipdialog.cpp \
-    src/package/tw.cpp \
-    src/package/ol.cpp \
     src/package/jsp.cpp \
-    src/dialog/mainwindowserverlist.cpp \
-    src/dialog/dialogslsettings.cpp \
-    src/server/qtupnpportmapping.cpp
+    src/dialog/dialogslsettings.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -188,9 +171,6 @@ HEADERS += \
     src/server/generalselector.h \
     src/server/room.h \
     src/server/roomthread.h \
-    src/server/roomthread1v1.h \
-    src/server/roomthread3v3.h \
-    src/server/roomthreadxmode.h \
     src/server/server.h \
     src/server/serverplayer.h \
     src/ui/button.h \
@@ -216,26 +196,16 @@ HEADERS += \
     src/core/record-analysis.h \
     src/package/hegemony.h \
     src/scenario/fancheng-scenario.h \
-    src/package/assassins.h \
     src/package/bgm.h \
-    src/package/boss.h \
     src/package/fire.h \
     src/package/h-formation.h \
     src/package/h-momentum.h \
-    src/package/jiange-defense.h \
-    src/package/joy.h \
-    src/package/ling.h \
     src/package/mountain.h \
     src/package/sp.h \
-    src/package/special1v1.h \
-    src/package/special3v3.h \
-    src/package/wisdom.h \
-    src/package/yitian.h \
     src/package/yjcm.h \
     src/package/yjcm2012.h \
     src/package/yjcm2013.h \
     src/package/yjcm2014.h \
-    src/package/yjcm2015.h \
     src/core/room-state.h \
     src/core/wrapped-card.h \
     src/ui/bubblechatbox.h \
@@ -248,14 +218,10 @@ HEADERS += \
     src/package/thicket.h \
     src/package/wind.h \
     src/dialog/banipdialog.h \
-    src/package/tw.h \
-    src/package/ol.h \
     src/package/jsp.h \
     src/pch.h \
-    src/dialog/mainwindowserverlist.h \
     src/dialog/dialogslsettings.h \
-    src/core/defines.h \
-    src/server/qtupnpportmapping.h
+    src/core/defines.h
 
 FORMS += \
     src/dialog/cardoverview.ui \
@@ -263,7 +229,6 @@ FORMS += \
     src/dialog/connectiondialog.ui \
     src/dialog/generaloverview.ui \
     src/dialog/mainwindow.ui \
-    src/dialog/mainwindowserverlist.ui \
     src/dialog/dialogslsettings.ui
 
 
@@ -292,54 +257,10 @@ macx{
 }
 
 LIBS += -L.
-win32-msvc*{
-    DEFINES += _CRT_SECURE_NO_WARNINGS
-    !contains(QMAKE_HOST.arch, x86_64) {
-        DEFINES += WIN32
-        LIBS += -L"$$_PRO_FILE_PWD_/lib/win/x86"
-    } else {
-        DEFINES += WIN64
-        LIBS += -L"$$_PRO_FILE_PWD_/lib/win/x64"
-    }
-    CONFIG(debug, debug|release) {
-        !winrt:INCLUDEPATH += include/vld
-    } else {
-        QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
-        DEFINES += USE_BREAKPAD
-
-        SOURCES += src/breakpad/client/windows/crash_generation/client_info.cc \
-            src/breakpad/client/windows/crash_generation/crash_generation_client.cc \
-            src/breakpad/client/windows/crash_generation/crash_generation_server.cc \
-            src/breakpad/client/windows/crash_generation/minidump_generator.cc \
-            src/breakpad/client/windows/handler/exception_handler.cc \
-            src/breakpad/common/windows/guid_string.cc
-
-        HEADERS += src/breakpad/client/windows/crash_generation/client_info.h \
-            src/breakpad/client/windows/crash_generation/crash_generation_client.h \
-            src/breakpad/client/windows/crash_generation/crash_generation_server.h \
-            src/breakpad/client/windows/crash_generation/minidump_generator.h \
-            src/breakpad/client/windows/handler/exception_handler.h \
-            src/breakpad/common/windows/guid_string.h
-
-        INCLUDEPATH += src/breakpad
-        INCLUDEPATH += src/breakpad/client/windows
-    }
-}
 win32-g++{
     DEFINES += WIN32
     LIBS += -L"$$_PRO_FILE_PWD_/lib/win/MinGW"
     DEFINES += GPP
-}
-winrt{
-    DEFINES += _CRT_SECURE_NO_WARNINGS
-    DEFINES += WINRT
-    !winphone {
-        LIBS += -L"$$_PRO_FILE_PWD_/lib/winrt/x64"
-    } else {
-        DEFINES += WINPHONE
-        contains($$QMAKESPEC, arm): LIBS += -L"$$_PRO_FILE_PWD_/lib/winphone/arm"
-        else : LIBS += -L"$$_PRO_FILE_PWD_/lib/winphone/x86"
-    }
 }
 macx{
     DEFINES += MAC
