@@ -1,15 +1,12 @@
 #include <cstring>
 
-#include <QQmlApplicationEngine>
+#include "mainwindow.h"
 #include "settings.h"
 #include "banpair.h"
 #include "server.h"
 #include "audio.h"
 #include "serverplayer.h"
 #include "engine.h"
-#include "defines.h"
-
-QQmlApplicationEngine *main_window;
 
 int main(int argc, char *argv[])
 {
@@ -70,17 +67,20 @@ int main(int argc, char *argv[])
         return qApp->exec();
     }
 
+    QFile file("qss/sanguosha.qss");
+    if (file.open(QIODevice::ReadOnly)) {
+        QTextStream stream(&file);
+        qApp->setStyleSheet(stream.readAll());
+    }
+
 #ifdef AUDIO_SUPPORT
     Audio::init();
 #endif
 
-    main_window = new QQmlApplicationEngine;
+    MainWindow *main_window = new MainWindow;
 
     Sanguosha->setParent(main_window);
-    main_window->rootContext()->setContextProperty("Sanguosha", Sanguosha);
-    main_window->load(QUrl(QStringLiteral("script/main.qml")));
-    if (main_window->rootObjects().isEmpty())
-        return -1;
+    main_window->show();
 
     foreach (QString arg, qApp->arguments()) {
         if (arg.startsWith("-connect:")) {
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
             Config.HostAddress = arg;
             Config.setValue("HostAddress", arg);
 
-            // main_window->startConnection();
+            main_window->startConnection();
             break;
         }
     }

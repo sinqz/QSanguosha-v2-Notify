@@ -15,7 +15,8 @@
 #include <QtNetwork>
 #include <QtGui>
 #include <QtWidgets>
-#include <QtQuick>
+
+#include <QtQml>
 
 #ifdef AUDIO_SUPPORT
 #include <fmod.hpp>

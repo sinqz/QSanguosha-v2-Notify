@@ -5,8 +5,6 @@
 #include "skill.h"
 #include "structs.h"
 #include "util.h"
-#include "client.h"
-#include "clientplayer.h"
 
 class AI;
 class Scenario;
@@ -29,7 +27,7 @@ public:
     ~Engine();
 
     void addTranslationEntry(const char *key, const char *value);
-    Q_INVOKABLE QString translate(const QString &to_translate) const;
+    QString translate(const QString &to_translate) const;
     lua_State *getLuaState() const;
 
     int getMiniSceneCounts();
@@ -54,7 +52,7 @@ public:
 
     QMap<QString, QString> getAvailableModes() const;
     QString getModeName(const QString &mode) const;
-    Q_INVOKABLE int getPlayerCount(const QString &mode) const;
+    int getPlayerCount(const QString &mode) const;
     QString getRoles(const QString &mode) const;
     QStringList getRoleList(const QString &mode) const;
     int getRoleIndex() const;
@@ -65,7 +63,7 @@ public:
     QList<const Skill *> getRelatedSkills(const QString &skill_name) const;
     const Skill *getMainSkill(const QString &skill_name) const;
 
-    Q_INVOKABLE QStringList getModScenarioNames() const;
+    QStringList getModScenarioNames() const;
     void addScenario(Scenario *scenario);
     const Scenario *getScenario(const QString &name) const;
     void addPackage(const QString &name);
@@ -125,14 +123,11 @@ public:
     QString findConvertFrom(const QString &general_name) const;
     bool isGeneralHidden(const QString &general_name) const;
 
-    Q_INVOKABLE QVariant getConfig(const QString &, QVariant defaultValue = QVariant());
-    Q_INVOKABLE void setConfig(const QString &, QVariant);
-    Q_INVOKABLE QStringList getMiniScenarioNames();
-    Q_INVOKABLE QVariant getServerInfo(const QString &);
-
 private:
     void _loadMiniScenarios();
     void _loadModScenarios();
+    void godLottery(QStringList &) const;
+	void godLottery(QSet<QString> &) const;
 
     QMutex m_mutex;
     QHash<QString, QString> translations;
@@ -187,6 +182,7 @@ public slots:
 private:
 	QFile logFile;
 #endif // LOGNETWORK
+
 };
 
 static inline QVariant GetConfigFromLuaState(lua_State *L, const char *key)

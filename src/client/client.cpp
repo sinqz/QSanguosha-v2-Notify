@@ -1,7 +1,7 @@
 #include "client.h"
 #include "settings.h"
 #include "engine.h"
-// #include "choosegeneraldialog.h"
+#include "choosegeneraldialog.h"
 #include "nativesocket.h"
 #include "recorder.h"
 #include "json.h"
@@ -9,7 +9,6 @@
 #include "clientstruct.h"
 #include "util.h"
 #include "wrapped-card.h"
-#include "src/main.h"
 
 using namespace std;
 using namespace QSanProtocol;
@@ -109,9 +108,8 @@ Client::Client(QObject *parent, const QString &filename)
     m_respondingUseFixedTarget = NULL;
 
     Self = new ClientPlayer(this);
-    main_window->rootContext()->setContextProperty("Self", Self);
-    Self->setScreenName(Config.value("UserName").toString());
-    Self->setProperty("avatar", Config.value("UserAvatar").toString());
+    Self->setScreenName(Config.UserName);
+    Self->setProperty("avatar", Config.UserAvatar);
     connect(Self, SIGNAL(phase_changed()), this, SLOT(alertFocus()));
     connect(Self, SIGNAL(role_changed(QString)), this, SLOT(notifyRoleChange(QString)));
 
@@ -190,8 +188,8 @@ void Client::signup()
     else {
         JsonArray arg;
         arg << Config.value("EnableReconnection", false).toBool();
-        arg << QString(Config.value("UserName").toString().toUtf8().toBase64());
-        arg << Config.value("UserAvatar").toString();
+        arg << QString(Config.UserName.toUtf8().toBase64());
+        arg << Config.UserAvatar;
         notifyServer(S_COMMAND_SIGNUP, arg);
     }
 }
@@ -946,7 +944,7 @@ void Client::askForNullification(const QVariant &arg)
         source = getPlayer(source_name.toString());
 
     const Card *trick_card = Sanguosha->findChild<const Card *>(trick_name);
-    if (Config.value("NeverNullifyMyTrick").toBool() && source == Self) {
+    if (Config.NeverNullifyMyTrick && source == Self) {
         if (trick_card->isKindOf("SingleTargetTrick") || trick_card->isKindOf("IronChain")) {
             onPlayerResponseCard(NULL);
             return;

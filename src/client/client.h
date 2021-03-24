@@ -5,7 +5,6 @@
 #include "skill.h"
 #include "room-state.h"
 #include "protocol.h"
-#include "defines.h"
 
 class Recorder;
 class Replayer;
@@ -77,7 +76,7 @@ public:
     {
         return player_count;
     }
-    Q_INVOKABLE void speakToServer(const QString &text);
+    void speakToServer(const QString &text);
     ClientPlayer *getPlayer(const QString &name);
     bool save(const QString &filename) const;
     QList<QByteArray> getRecords() const;

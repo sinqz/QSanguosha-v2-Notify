@@ -131,7 +131,6 @@ public:
     void insertAttackRangePair(const Player *player);
     void removeAttackRangePair(const Player *player);
     int distanceTo(const Player *other, int distance_fix = 0) const;
-    Q_INVOKABLE QString getAvatar() const;
     const General *getAvatarGeneral() const;
     const General *getGeneral() const;
 

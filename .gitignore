@@ -95,4 +95,3 @@ src/bot_version.cpp
 serverlist.log
 record/
 lua/ai/1-ai.lua
-*.autosave
