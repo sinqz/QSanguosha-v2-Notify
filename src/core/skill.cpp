@@ -411,7 +411,7 @@ bool SPConvertSkill::triggerable(const ServerPlayer *target) const
 {
     if (target == NULL) return false;
     if (!Config.value("EnableSPConvert", true).toBool()) return false;
-    if (!isNormalGameMode(Config.GameMode)) return false;
+    if (!isNormalGameMode(Config.value("GameMode").toString())) return false;
     bool available = false;
     foreach (QString to_gen, to_list) {
         const General *gen = Sanguosha->getGeneral(to_gen);
@@ -640,4 +640,3 @@ void MarkAssignSkill::onGameStart(ServerPlayer *player) const
 {
     player->getRoom()->setPlayerMark(player, mark_name, player->getMark(mark_name) + n);
 }
-

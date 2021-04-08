@@ -27,7 +27,7 @@ public:
             FMOD_RESULT result = FMOD_System_PlaySound(System, FMOD_CHANNEL_FREE, sound, false, &channel);
 
             if (result == FMOD_OK) {
-                FMOD_Channel_SetVolume(channel, Config.EffectVolume);
+                FMOD_Channel_SetVolume(channel, Config.value("EffectVolume").toFloat());
                 FMOD_System_Update(System);
             }
         }

@@ -1,7 +1,7 @@
 #include "client.h"
 #include "settings.h"
 #include "engine.h"
-#include "choosegeneraldialog.h"
+// #include "choosegeneraldialog.h"
 #include "nativesocket.h"
 #include "recorder.h"
 #include "json.h"
@@ -9,6 +9,9 @@
 #include "clientstruct.h"
 #include "util.h"
 #include "wrapped-card.h"
+#include "src/main.h"
+// @TODO
+#include "server.h"
 
 using namespace std;
 using namespace QSanProtocol;
@@ -21,6 +24,7 @@ Client::Client(QObject *parent, const QString &filename)
     player_count(1) // Self is not included!! Be care!!!
 {
     ClientInstance = this;
+    main_window->rootContext()->setContextProperty("ClientInstance", this);
     m_isGameOver = false;
     m_isDisconnected = true;
 
@@ -108,8 +112,9 @@ Client::Client(QObject *parent, const QString &filename)
     m_respondingUseFixedTarget = NULL;
 
     Self = new ClientPlayer(this);
-    Self->setScreenName(Config.UserName);
-    Self->setProperty("avatar", Config.UserAvatar);
+    main_window->rootContext()->setContextProperty("Self", Self);
+    Self->setScreenName(Config.value("UserName").toString());
+    Self->setProperty("avatar", Config.value("UserAvatar").toString());
     connect(Self, SIGNAL(phase_changed()), this, SLOT(alertFocus()));
     connect(Self, SIGNAL(role_changed(QString)), this, SLOT(notifyRoleChange(QString)));
 
@@ -188,8 +193,8 @@ void Client::signup()
     else {
         JsonArray arg;
         arg << Config.value("EnableReconnection", false).toBool();
-        arg << QString(Config.UserName.toUtf8().toBase64());
-        arg << Config.UserAvatar;
+        arg << QString(Config.value("UserName").toString().toUtf8().toBase64());
+        arg << Config.value("UserAvatar").toString();
         notifyServer(S_COMMAND_SIGNUP, arg);
     }
 }
@@ -210,7 +215,7 @@ void Client::replyToServer(CommandType command, const QVariant &arg)
 
 void Client::handleGameEvent(const QVariant &arg)
 {
-    emit event_received(arg);
+    emit event_received(arg.value<QVariantList>());
 }
 
 void Client::requestServer(CommandType command, const QVariant &arg)
@@ -269,6 +274,9 @@ void Client::disconnectFromHost()
         socket->deleteLater();
         m_isDisconnected = true;
     }
+    // @TODO: Dirty code here. Remember to remove them.
+    Server *server = qApp->findChild<Server *>();
+    if (server) server->deleteLater();
 }
 
 void Client::processServerPacket(const QString &cmd)
@@ -346,6 +354,9 @@ void Client::updateProperty(const QVariant &arg)
     ClientPlayer *player = getPlayer(object_name);
     if (!player) return;
     player->setProperty(args[1].toString().toLatin1().constData(), args[2].toString());
+    QVariantList sig_args;
+    sig_args << object_name << args[1].toString() << args[2];
+    emit property_updated(sig_args);
 }
 
 void Client::removePlayer(const QVariant &player_name)
@@ -411,7 +422,125 @@ void Client::getCards(const QVariant &arg)
     }
     updatePileNum();
     emit move_cards_got(moveId, moves);
+    // @TODO
+    for (int i = 0; i < moves.length(); i++) {
+        QString log = getCardLog(moves[i]);
+        if (log != QString()) emit log_received(log);
+    }
 }
+
+// @TODO: remove it
+QString Client::getCardLog(CardsMoveStruct &move)
+{
+    if (move.card_ids.isEmpty()) return QString();
+    if (move.to
+        && (move.to_place == Player::PlaceHand
+        || move.to_place == Player::PlaceEquip
+        || move.to_place == Player::PlaceSpecial)
+        && move.from_place != Player::DrawPile) {
+        foreach(QString flag, move.to->getFlagList())
+            if (flag.endsWith("_InTempMoving"))
+                return QString();
+    }
+
+    // private pile
+    if (move.to_place == Player::PlaceSpecial && !move.to_pile_name.isNull() && !move.to_pile_name.startsWith('#')) {
+        bool hidden = (move.card_ids.contains(Card::S_UNKNOWN_CARD_ID));
+        if (hidden)
+            return appendLog("#RemoveFromGame", QString(), QStringList(), QString(), move.to_pile_name, QString::number(move.card_ids.length()));
+        else
+            return appendLog("$AddToPile", QString(), QStringList(), IntList2StringList(move.card_ids).join("+"), move.to_pile_name);
+    }
+    if (move.from_place == Player::PlaceSpecial && move.to
+        && move.reason.m_reason == CardMoveReason::S_REASON_EXCHANGE_FROM_PILE) {
+        bool hidden = (move.card_ids.contains(Card::S_UNKNOWN_CARD_ID));
+        if (!hidden)
+            return appendLog("$GotCardFromPile", move.to->objectName(), QStringList(), IntList2StringList(move.card_ids).join("+"), move.from_pile_name);
+        else
+            return appendLog("#GotNCardFromPile", move.to->objectName(), QStringList(), QString(), move.from_pile_name, QString::number(move.card_ids.length()));
+    }
+    //DrawNCards
+    if (move.from_place == Player::DrawPile && move.to_place == Player::PlaceHand) {
+        QString to_general = move.to->objectName();
+        bool hidden = (move.card_ids.contains(Card::S_UNKNOWN_CARD_ID));
+        if (!hidden)
+            return appendLog("$DrawCards", to_general, QStringList(), IntList2StringList(move.card_ids).join("+"),
+            QString::number(move.card_ids.length()));
+        else
+            return appendLog("#DrawNCards", to_general, QStringList(), QString(),
+            QString::number(move.card_ids.length()));
+
+    }
+    if ((move.from_place == Player::PlaceTable || move.from_place == Player::PlaceJudge)
+        && move.to_place == Player::PlaceHand
+        && move.reason.m_reason != CardMoveReason::S_REASON_PREVIEW) {
+        QString to_general = move.to->objectName();
+        QList<int> ids = move.card_ids;
+        ids.removeAll(Card::S_UNKNOWN_CARD_ID);
+        if (!ids.isEmpty()) {
+            QString card_str = IntList2StringList(ids).join("+");
+            return appendLog("$GotCardBack", to_general, QStringList(), card_str);
+        }
+    }
+    if (move.from_place == Player::DiscardPile && move.to_place == Player::PlaceHand) {
+        QString to_general = move.to->objectName();
+        QString card_str = IntList2StringList(move.card_ids).join("+");
+        return appendLog("$RecycleCard", to_general, QStringList(), card_str);
+    }
+    if (move.from && move.from_place != Player::PlaceHand && move.from_place != Player::PlaceJudge
+        && move.to_place != Player::PlaceDelayedTrick && move.to_place != Player::PlaceJudge
+        && move.to && move.from != move.to) {
+        QString from_general = move.from->objectName();
+        QStringList tos;
+        tos << move.to->objectName();
+        QList<int> ids = move.card_ids;
+        ids.removeAll(Card::S_UNKNOWN_CARD_ID);
+        int hide = move.card_ids.length() - ids.length();
+        if (!ids.isEmpty()) {
+            QString card_str = IntList2StringList(ids).join("+");
+            return appendLog("$MoveCard", from_general, tos, card_str);
+        }
+        if (hide > 0)
+            return appendLog("#MoveNCards", from_general, tos, QString(), QString::number(hide));
+    }
+    if (move.from_place == Player::PlaceHand && move.to_place == Player::PlaceHand) {
+        QString from_general = move.from->objectName();
+        QStringList tos;
+        tos << move.to->objectName();
+        bool hidden = (move.card_ids.contains(Card::S_UNKNOWN_CARD_ID));
+        if (hidden)
+            return appendLog("#MoveNCards", from_general, tos, QString(), QString::number(move.card_ids.length()));
+        else
+            return appendLog("$MoveCard", from_general, tos, IntList2StringList(move.card_ids).join("+"));
+    }
+    if (move.from && move.to) {
+        // both src and dest are player
+        QString type;
+        if (move.to_place == Player::PlaceDelayedTrick) {
+            if (move.from_place == Player::PlaceDelayedTrick && move.from != move.to)
+                type = "$LightningMove";
+            else
+                type = "$PasteCard";
+        }
+        if (!type.isNull()) {
+            QString from_general = move.from->objectName();
+            QStringList tos;
+            tos << move.to->objectName();
+            return appendLog(type, from_general, tos, QString::number(move.card_ids.first()));
+        }
+    }
+    if (move.from && move.to && move.from_place == Player::PlaceEquip && move.to_place == Player::PlaceEquip) {
+        QString type = "$Install";
+        QString to_general = move.to->objectName();
+        foreach(int card_id, move.card_ids)
+            return appendLog(type, to_general, QStringList(), QString::number(card_id));
+    }
+    if (move.reason.m_reason == CardMoveReason::S_REASON_TURNOVER)
+        return appendLog("$TurnOver", move.reason.m_playerId, QStringList(), IntList2StringList(move.card_ids).join("+"));
+
+    return QString();
+}
+
 
 void Client::loseCards(const QVariant &arg)
 {
@@ -614,13 +743,18 @@ void Client::hpChange(const QVariant &change_str)
     if (!JsonUtils::isString(change[0]) || !JsonUtils::isNumber(change[1]) || !JsonUtils::isNumber(change[2])) return;
 
     QString who = change[0].toString();
+    ClientPlayer *player = getPlayer(who);
     int delta = change[1].toInt();
 
     int nature_index = change[2].toInt();
-    DamageStruct::Nature nature = DamageStruct::Normal;
-    if (nature_index > 0) nature = (DamageStruct::Nature)nature_index;
+    int nature = (int)DamageStruct::Normal;
+    if (nature_index > 0) nature = nature_index;
 
     emit hp_changed(who, delta, nature, nature_index == -1);
+    if (delta > 0)
+        emit log_received(appendLog("#Recover", who, QStringList(), QString(), QString::number(delta)));
+    emit log_received(appendLog("#GetHp", who, QStringList(), QString(),
+                                QString::number(player->getHp() + delta), QString::number(player->getMaxHp())));
 }
 
 void Client::maxhpChange(const QVariant &change_str)
@@ -944,7 +1078,7 @@ void Client::askForNullification(const QVariant &arg)
         source = getPlayer(source_name.toString());
 
     const Card *trick_card = Sanguosha->findChild<const Card *>(trick_name);
-    if (Config.NeverNullifyMyTrick && source == Self) {
+    if (Config.value("NeverNullifyMyTrick").toBool() && source == Self) {
         if (trick_card->isKindOf("SingleTargetTrick") || trick_card->isKindOf("IronChain")) {
             onPlayerResponseCard(NULL);
             return;
@@ -1138,7 +1272,7 @@ void Client::updatePileNum()
 {
     QString pile_str = tr("Draw pile: <b>%1</b>, discard pile: <b>%2</b>, swap times: <b>%3</b>")
         .arg(pile_num).arg(discarded_list.length()).arg(swap_pile);
-    lines_doc->setHtml(QString("<font color='%1'><p align = \"center\">" + pile_str + "</p></font>").arg(Config.TextEditColor.name()));
+    lines_doc->setHtml(QString("<font color='%1'><p align = \"center\">" + pile_str + "</p></font>").arg("white"));
 }
 
 void Client::askForDiscard(const QVariant &reqvar)
@@ -1460,6 +1594,7 @@ void Client::takeAG(const QVariant &take_var)
         if (move_cards)
             taker->addCard(card, Player::PlaceHand);
         emit ag_taken(taker, card_id, move_cards);
+        emit log_received(appendLog("$TakeAG", taker->objectName(), QStringList(), QString::number(card_id)));
     }
 }
 
@@ -1758,7 +1893,7 @@ void Client::log(const QVariant &log_str)
     QStringList log;
 
     if (!JsonUtils::tryParse(log_str, log) || log.size() != 6)
-        emit log_received(QStringList() << QString());
+        emit log_received(QString());
     else {
         if (log.first().contains("#BasaraReveal"))
             Sanguosha->playSystemAudioEffect("choose-item");
@@ -1771,9 +1906,161 @@ void Client::log(const QVariant &log_str)
             if (from && from != Self)
                 from->setHandcardNum(0);
         }
-        emit log_received(log);
+        emit log_received(appendLog(log[0], log[1], log[2].isEmpty() ? QStringList() : log[2].split("+"),
+                log[3], log[4], log[5]));
     }
 }
+
+QString Client::appendLog(const QString &type, const QString &from_general, const QStringList &tos,
+    QString card_str, QString arg, QString arg2)
+{
+    if (Self->hasFlag("marshalling")) return QString();
+
+    if (type == "$AppendSeparator") {
+        return tr("<font color='white'>------------------------------</font>");
+    }
+
+#define bold(str, color) QString("<font color='%1'><b>%2</b></font>").arg(QColor(color).name()).arg(str);
+
+    QString from;
+    if (!from_general.isEmpty()) {
+        from = ClientInstance->getPlayerName(from_general);
+        from = bold(from, Qt::green);
+    }
+
+    QString to;
+    if (!tos.isEmpty()) {
+        QStringList to_list;
+        foreach(QString to, tos)
+            to_list << ClientInstance->getPlayerName(to);
+        to = to_list.join(", ");
+        to = bold(to, Qt::red);
+    }
+
+    QString log;
+
+    if (type.startsWith("$")) {
+        QString log_name;
+        foreach (QString one_card, card_str.split("+")) {
+            const Card *card = NULL;
+            if (type == "$JudgeResult" || type == "$PasteCard")
+                card = Sanguosha->getCard(one_card.toInt());
+            else
+                card = Sanguosha->getEngineCard(one_card.toInt());
+            if (card) {
+                if (log_name.isEmpty())
+                    log_name = card->getLogName();
+                else
+                    log_name += ", " + card->getLogName();
+            }
+        }
+        log_name = bold(log_name, Qt::yellow);
+
+        log = Sanguosha->translate(type);
+        log.replace("%from", from);
+        log.replace("%to", to);
+        log.replace("%card", log_name);
+
+        if (!arg2.isEmpty()) {
+            arg2 = bold(Sanguosha->translate(arg2), Qt::yellow);
+            log.replace("%arg2", arg2);
+        }
+
+        if (!arg.isEmpty()) {
+            arg = bold(Sanguosha->translate(arg), Qt::yellow);
+            log.replace("%arg", arg);
+        }
+
+        log = QString("<font color='%2'>%1</font>").arg(log).arg("white");
+
+        return log;
+    }
+
+    if (type.startsWith("#UseCard") && !card_str.isEmpty() && !from_general.isEmpty()) {
+        const Card *card = Card::Parse(card_str);
+        if (card == NULL) return QString();
+
+        QString card_name = card->getLogName();
+        card_name = bold(card_name, Qt::yellow);
+
+        QString reason = tr("using");
+        if (type.endsWith("_Resp")) reason = tr("playing");
+        if (type.endsWith("_Recast")) reason = tr("recasting");
+
+        if (card->isVirtualCard()) {
+            QString skill_name = Sanguosha->translate(card->getSkillName());
+            skill_name = bold(skill_name, Qt::yellow);
+            bool eff = (card->getSkillName(false) != card->getSkillName(true));
+            QString meth = eff ? tr("carry out") : tr("use skill");
+            QString suffix = eff ? tr("effect") : "";
+
+            QList<int> card_ids = card->getSubcards();
+            QStringList subcard_list;
+            foreach (int card_id, card_ids) {
+                const Card *subcard = Sanguosha->getEngineCard(card_id);
+                subcard_list << bold(subcard->getLogName(), Qt::yellow);
+            }
+
+            QString subcard_str = subcard_list.join(", ");
+            if (card->getTypeId() == Card::TypeSkill && !card->isKindOf("YanxiaoCard")) {
+                const SkillCard *skill_card = qobject_cast<const SkillCard *>(card);
+                if (subcard_list.isEmpty() || !skill_card->willThrow())
+                    log = tr("%from %2 [%1] %3").arg(skill_name).arg(meth).arg(suffix);
+                else
+                    log = tr("%from %3 [%1] %4, and the cost is %2").arg(skill_name).arg(subcard_str).arg(meth).arg(suffix);
+            } else {
+                if (subcard_list.isEmpty() || card->getSkillName().contains("guhuo"))
+                    log = tr("%from %4 [%1] %5, %3 [%2]").arg(skill_name).arg(card_name).arg(reason).arg(meth).arg(suffix);
+                else
+                    log = tr("%from %5 [%1] %6 %4 %2 as %3").arg(skill_name).arg(subcard_str).arg(card_name).arg(reason).arg(meth).arg(suffix);
+            }
+
+            delete card;
+        } else if (card->getSkillName() != QString()) {
+            const Card *real = Sanguosha->getEngineCard(card->getEffectiveId());
+            QString skill_name = Sanguosha->translate(card->getSkillName());
+            skill_name = bold(skill_name, Qt::yellow);
+
+            QString subcard_str = bold(real->getLogName(), Qt::yellow);
+            if (card->isKindOf("DelayedTrick"))
+                log = tr("%from %5 [%1] %6 %4 %2 as %3").arg(skill_name).arg(subcard_str).arg(card_name).arg(reason).arg(tr("use skill")).arg(QString());
+            else
+                log = tr("Due to the effect of [%1], %from %4 %2 as %3").arg(skill_name).arg(subcard_str).arg(card_name).arg(reason);
+        } else
+            log = tr("%from %2 %1").arg(card_name).arg(reason);
+
+        if (!to.isEmpty()) log.append(tr(", target is %to"));
+    } else {
+        log = Sanguosha->translate(type);
+        const Card *card = Card::Parse(card_str);
+        if (card) {
+            QString card_name = card->getLogName();
+            card_name = bold(card_name, Qt::yellow);
+            log.replace("%card", card_name);
+        }
+    }
+
+    log.replace("%from", from);
+    log.replace("%to", to);
+
+    if (!arg2.isEmpty()) {
+        arg2 = bold(Sanguosha->translate(arg2), Qt::yellow);
+        log.replace("%arg2", arg2);
+    }
+
+    if (!arg.isEmpty()) {
+        arg = bold(Sanguosha->translate(arg), Qt::yellow);
+        log.replace("%arg", arg);
+    }
+
+    log = QString("<font color='%2'>%1</font>").arg(log).arg("white");
+#undef bold
+    return log;
+    // QString final_log = append(log);
+    // if (type == "#Guhuo" || type == "#GuhuoNoTarget")
+    //    RoomSceneInstance->setGuhuoLog(final_log);
+}
+
 
 void Client::speak(const QVariant &speak)
 {
@@ -1786,7 +2073,7 @@ void Client::speak(const QVariant &speak)
     QString who = args[0].toString();
     QString text = QString::fromUtf8(QByteArray::fromBase64(args[1].toString().toLatin1()));
 
-    static const QString prefix("<img width=14 height=14 src='image/system/chatface/");
+    static const QString prefix("<img width=14 height=14 src='../../../image/system/chatface/");
     static const QString suffix(".png'></img>");
     text = text.replace("<#", prefix).replace("#>", suffix);
 
@@ -1809,7 +2096,7 @@ void Client::speak(const QVariant &speak)
     title = QString("<b>%1</b>").arg(title);
 
     QString line = tr("<font color='%1'>[%2] said: %3 </font>")
-        .arg(Config.TextEditColor.name()).arg(title).arg(text);
+        .arg("white").arg(title).arg(text);
 
     emit line_spoken(QString("<p style=\"margin:3px 2px;\">%1</p>").arg(line));
 }

@@ -5,6 +5,8 @@
 #include "skill.h"
 #include "structs.h"
 #include "util.h"
+#include "client.h"
+#include "clientplayer.h"
 
 class AI;
 class Scenario;
@@ -27,7 +29,7 @@ public:
     ~Engine();
 
     void addTranslationEntry(const char *key, const char *value);
-    QString translate(const QString &to_translate) const;
+    Q_INVOKABLE QString translate(const QString &to_translate) const;
     lua_State *getLuaState() const;
 
     int getMiniSceneCounts();
@@ -52,7 +54,7 @@ public:
 
     QMap<QString, QString> getAvailableModes() const;
     QString getModeName(const QString &mode) const;
-    int getPlayerCount(const QString &mode) const;
+    Q_INVOKABLE int getPlayerCount(const QString &mode) const;
     QString getRoles(const QString &mode) const;
     QStringList getRoleList(const QString &mode) const;
     int getRoleIndex() const;
@@ -63,7 +65,7 @@ public:
     QList<const Skill *> getRelatedSkills(const QString &skill_name) const;
     const Skill *getMainSkill(const QString &skill_name) const;
 
-    QStringList getModScenarioNames() const;
+    Q_INVOKABLE QStringList getModScenarioNames() const;
     void addScenario(Scenario *scenario);
     const Scenario *getScenario(const QString &name) const;
     void addPackage(const QString &name);
@@ -87,6 +89,7 @@ public:
     const Card *getEngineCard(int cardId) const;
     // @todo: consider making this const Card *
     Card *getCard(int cardId);
+    Q_INVOKABLE QString getCard4Qml(int cardId);
     WrappedCard *getWrappedCard(int cardId);
 
     QStringList getLords(bool contain_banned = false) const;
@@ -101,7 +104,7 @@ public:
     }
 
     void playSystemAudioEffect(const QString &name, bool superpose = true) const;
-    void playAudioEffect(const QString &filename, bool superpose = true) const;
+    Q_INVOKABLE void playAudioEffect(const QString &filename, bool superpose = true) const;
     void playSkillAudioEffect(const QString &skill_name, int index, bool superpose = true) const;
 
     const ProhibitSkill *isProhibited(const Player *from, const Player *to, const Card *card, const QList<const Player *> &others = QList<const Player *>()) const;
@@ -123,11 +126,20 @@ public:
     QString findConvertFrom(const QString &general_name) const;
     bool isGeneralHidden(const QString &general_name) const;
 
+    Q_INVOKABLE QVariant getConfig(const QString &, QVariant defaultValue = QVariant());
+    Q_INVOKABLE void setConfig(const QString &, QVariant);
+    Q_INVOKABLE QStringList getMiniScenarioNames();
+    Q_INVOKABLE QVariant getServerInfo(const QString &);
+    Q_INVOKABLE const QString getGeneralKingdom(const QString &name) {
+        return getGeneral(name)->getKingdom();
+    }
+    Q_INVOKABLE const QString getGeneralDescription(const QString &name) {
+        return getGeneral(name)->getSkillDescription(true);
+    }
+
 private:
     void _loadMiniScenarios();
     void _loadModScenarios();
-    void godLottery(QStringList &) const;
-	void godLottery(QSet<QString> &) const;
 
     QMutex m_mutex;
     QHash<QString, QString> translations;
@@ -182,7 +194,6 @@ public slots:
 private:
 	QFile logFile;
 #endif // LOGNETWORK
-
 };
 
 static inline QVariant GetConfigFromLuaState(lua_State *L, const char *key)

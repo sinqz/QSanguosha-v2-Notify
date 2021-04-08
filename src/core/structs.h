@@ -226,6 +226,11 @@ struct CardsMoveOneTimeStruct
 
 struct CardsMoveStruct
 {
+    Q_GADGET
+    QML_ELEMENT
+    QML_UNCREATABLE("Don't do like this.")
+
+public:
     inline CardsMoveStruct()
     {
         from_place = Player::PlaceUnknown;
@@ -313,6 +318,16 @@ struct CardsMoveStruct
     {
         return player != NULL && (from == player || (to == player && to_place != Player::PlaceSpecial));
     }
+
+private:
+    Q_PROPERTY(QList<int> card_ids MEMBER card_ids)
+    Q_PROPERTY(Player::Place from_place MEMBER from_place)
+    Q_PROPERTY(Player::Place to_place MEMBER to_place)
+    Q_PROPERTY(QString from_player_name MEMBER from_player_name)
+    Q_PROPERTY(QString to_player_name MEMBER to_player_name)
+    Q_PROPERTY(QString from_pile_name MEMBER from_pile_name)
+    Q_PROPERTY(QString to_pile_name MEMBER to_pile_name)
+    Q_PROPERTY(bool open MEMBER open)
 };
 
 struct DyingStruct
@@ -566,4 +581,3 @@ Q_DECLARE_METATYPE(ServerPlayer *)
 Q_DECLARE_METATYPE(JudgeStruct *)
 Q_DECLARE_METATYPE(PindianStruct *)
 #endif
-

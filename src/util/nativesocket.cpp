@@ -73,12 +73,12 @@ void NativeClientSocket::connectToHost()
     QString address = "127.0.0.1";
     ushort port = 9527u;
 
-    if (Config.HostAddress.contains(QChar(':'))) {
+    if (Config.value("HostAddress").toString().contains(QChar(':'))) {
         QStringList texts = Config.HostAddress.split(QChar(':'));
         address = texts.value(0);
         port = texts.value(1).toUShort();
     } else {
-        address = Config.HostAddress;
+        address = Config.value("HostAddress").toString();
         if (address == "127.0.0.1")
             port = Config.value("ServerPort", "9527").toString().toUShort();
     }
@@ -92,7 +92,7 @@ void NativeClientSocket::getMessage()
         buffer_t msg;
         socket->readLine(msg, sizeof(msg));
 #ifndef QT_NO_DEBUG
-        printf("RX: %s", msg);
+        // printf("RX: %s", msg);
 #endif
         emit message_got(msg);
     }
@@ -109,7 +109,7 @@ void NativeClientSocket::send(const QString &message)
     if (!message.endsWith("\n"))
         socket->write("\n");
 #ifndef QT_NO_DEBUG
-    printf("TX: %s\n", message.toLatin1().constData());
+    // printf("TX: %s\n", message.toLatin1().constData());
 #endif
     socket->flush();
 }

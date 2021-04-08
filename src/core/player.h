@@ -17,6 +17,8 @@ class WrappedCard;
 class Player : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_UNCREATABLE("Don't do like this.")
 
     Q_PROPERTY(QString screenname READ screenName WRITE setScreenName)
     Q_PROPERTY(int hp READ getHp WRITE setHp)
@@ -92,7 +94,7 @@ public:
 
     void setGeneral(const General *general);
     void setGeneralName(const QString &general_name);
-    QString getGeneralName() const;
+    Q_INVOKABLE QString getGeneralName() const;
 
     void setGeneral2Name(const QString &general_name);
     QString getGeneral2Name() const;
@@ -119,7 +121,7 @@ public:
     QString getFlags() const;
     QStringList getFlagList() const;
     virtual void setFlags(const QString &flag);
-    bool hasFlag(const QString &flag) const;
+    Q_INVOKABLE bool hasFlag(const QString &flag) const;
     void clearFlags();
 
     bool faceUp() const;
@@ -131,16 +133,17 @@ public:
     void insertAttackRangePair(const Player *player);
     void removeAttackRangePair(const Player *player);
     int distanceTo(const Player *other, int distance_fix = 0) const;
+    Q_INVOKABLE QString getAvatar() const;
     const General *getAvatarGeneral() const;
     const General *getGeneral() const;
 
     bool isLord() const;
 
-    void acquireSkill(const QString &skill_name);
-    void detachSkill(const QString &skill_name);
+    Q_INVOKABLE void acquireSkill(const QString &skill_name);
+    Q_INVOKABLE void detachSkill(const QString &skill_name);
     void detachAllSkills();
-    virtual void addSkill(const QString &skill_name);
-    virtual void loseSkill(const QString &skill_name);
+    Q_INVOKABLE virtual void addSkill(const QString &skill_name);
+    Q_INVOKABLE virtual void loseSkill(const QString &skill_name);
     virtual void loseAttachLordSkill(const QString &skill_name);
     bool hasSkill(const QString &skill_name, bool include_lose = false) const;
     bool hasSkill(const Skill *skill, bool include_lose = false) const;
@@ -189,7 +192,7 @@ public:
     void addMark(const QString &mark, int add_num = 1);
     void removeMark(const QString &mark, int remove_num = 1);
     virtual void setMark(const QString &mark, int value);
-    int getMark(const QString &mark) const;
+    Q_INVOKABLE int getMark(const QString &mark) const;
     QStringList getMarkNames() const;
 
     void setChained(bool chained);
@@ -199,7 +202,7 @@ public:
     bool canSlash(const Player *other, bool distance_limit = true, int rangefix = 0, const QList<const Player *> &others = QList<const Player *>()) const;
     int getCardCount(bool include_equip = true, bool include_judging = false) const;
 
-    QList<int> getPile(const QString &pile_name) const;
+    Q_INVOKABLE QList<int> getPile(const QString &pile_name) const;
     QStringList getPileNames() const;
     QString getPileName(int card_id) const;
     bool pileOpen(const QString &pile_name, const QString &player) const;
@@ -219,7 +222,7 @@ public:
     QSet<const Skill *> getVisibleSkills(bool include_equip = false) const;
     QList<const Skill *> getVisibleSkillList(bool include_equip = false) const;
     QStringList getAcquiredSkills() const;
-    QString getSkillDescription() const;
+    Q_INVOKABLE QString getSkillDescription() const;
 
     virtual bool isProhibited(const Player *to, const Card *card, const QList<const Player *> &others = QList<const Player *>()) const;
     bool canSlashWithoutCrossbow(const Card *slash = NULL) const;
@@ -245,7 +248,7 @@ public:
 
     void copyFrom(Player *p);
 
-    QList<const Player *> getSiblings() const;
+    Q_INVOKABLE QList<const Player *> getSiblings() const;
     QList<const Player *> getAliveSiblings() const;
 
     QVariantMap tag;

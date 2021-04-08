@@ -3,7 +3,9 @@
 # -------------------------------------------------
 TARGET = QSanguosha
 QT += network widgets
-QT += qml
+QT += qml quick
+QML_IMPORT_NAME = Sanguosha
+QML_IMPORT_VERSION = 1.0
 TEMPLATE = app
 
 CONFIG(release,debug|release){
@@ -12,7 +14,7 @@ CONFIG += audio
 }
 
 CONFIG += lua
-
+CONFIG += qmltypes
 CONFIG -= flat
 
 CONFIG += precompile_header
@@ -37,18 +39,6 @@ SOURCES += \
     src/core/skill.cpp \
     src/core/structs.cpp \
     src/core/util.cpp \
-    src/dialog/cardeditor.cpp \
-    src/dialog/cardoverview.cpp \
-    src/dialog/choosegeneraldialog.cpp \
-    src/dialog/configdialog.cpp \
-    src/dialog/connectiondialog.cpp \
-    src/dialog/customassigndialog.cpp \
-    src/dialog/distanceviewdialog.cpp \
-    src/dialog/generaloverview.cpp \
-    src/dialog/mainwindow.cpp \
-    src/dialog/playercarddialog.cpp \
-    src/dialog/roleassigndialog.cpp \
-    src/dialog/scenario-overview.cpp \
     src/package/exppattern.cpp \
     src/package/god.cpp \
     src/package/maneuvering.cpp \
@@ -74,37 +64,11 @@ SOURCES += \
     src/server/roomthread.cpp \
     src/server/server.cpp \
     src/server/serverplayer.cpp \
-    src/ui/button.cpp \
-    src/ui/cardcontainer.cpp \
-    src/ui/carditem.cpp \
-    src/ui/chatwidget.cpp \
-    src/ui/clientlogbox.cpp \
-    src/ui/dashboard.cpp \
-    src/ui/indicatoritem.cpp \
-    src/ui/magatamas-item.cpp \
-    src/ui/photo.cpp \
-    src/ui/pixmapanimation.cpp \
-    src/ui/qsanbutton.cpp \
-    src/ui/rolecombobox.cpp \
-    src/ui/roomscene.cpp \
-    src/ui/sprite.cpp \
-    src/ui/startscene.cpp \
-    src/ui/window.cpp \
-    src/util/detector.cpp \
-    src/util/nativesocket.cpp \
-    src/util/recorder.cpp \
-    src/core/record-analysis.cpp \
     src/package/hegemony.cpp \
     src/scenario/fancheng-scenario.cpp \
     src/core/room-state.cpp \
     src/core/wrapped-card.cpp \
-    src/ui/bubblechatbox.cpp \
-    src/ui/generic-cardcontainer-ui.cpp \
-    src/ui/qsan-selectable-item.cpp \
-    src/ui/skin-bank.cpp \
-    src/ui/table-pile.cpp \
-    src/ui/timed-progressbar.cpp \
-    src/ui/ui-utils.cpp \
+    src/core/record-analysis.cpp \
     src/package/bgm.cpp \
     src/package/fire.cpp \
     src/package/h-formation.cpp \
@@ -115,10 +79,15 @@ SOURCES += \
     src/package/yjcm2012.cpp \
     src/package/yjcm2013.cpp \
     src/package/yjcm2014.cpp \
+    src/ui/pcconsolestartdialog.cpp \
+    src/ui/roomscene.cpp \
+    src/ui/startgamedialog.cpp \
+    src/ui/startserverdialog.cpp \
     swig/sanguosha_wrap.cxx \
-    src/dialog/banipdialog.cpp \
     src/package/jsp.cpp \
-    src/dialog/dialogslsettings.cpp
+    src/util/detector.cpp \
+    src/util/nativesocket.cpp \
+    src/util/recorder.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -139,18 +108,7 @@ HEADERS += \
     src/core/skill.h \
     src/core/structs.h \
     src/core/util.h \
-    src/dialog/cardeditor.h \
-    src/dialog/cardoverview.h \
-    src/dialog/choosegeneraldialog.h \
-    src/dialog/configdialog.h \
-    src/dialog/connectiondialog.h \
-    src/dialog/customassigndialog.h \
-    src/dialog/distanceviewdialog.h \
-    src/dialog/generaloverview.h \
-    src/dialog/mainwindow.h \
-    src/dialog/playercarddialog.h \
-    src/dialog/roleassigndialog.h \
-    src/dialog/scenario-overview.h \
+    src/main.h \
     src/package/exppattern.h \
     src/package/god.h \
     src/package/maneuvering.h \
@@ -173,22 +131,10 @@ HEADERS += \
     src/server/roomthread.h \
     src/server/server.h \
     src/server/serverplayer.h \
-    src/ui/button.h \
-    src/ui/cardcontainer.h \
-    src/ui/carditem.h \
-    src/ui/chatwidget.h \
-    src/ui/clientlogbox.h \
-    src/ui/dashboard.h \
-    src/ui/indicatoritem.h \
-    src/ui/magatamas-item.h \
-    src/ui/photo.h \
-    src/ui/pixmapanimation.h \
-    src/ui/qsanbutton.h \
-    src/ui/rolecombobox.h \
+    src/ui/pcconsolestartdialog.h \
     src/ui/roomscene.h \
-    src/ui/sprite.h \
-    src/ui/startscene.h \
-    src/ui/window.h \
+    src/ui/startgamedialog.h \
+    src/ui/startserverdialog.h \
     src/util/detector.h \
     src/util/nativesocket.h \
     src/util/recorder.h \
@@ -208,28 +154,19 @@ HEADERS += \
     src/package/yjcm2014.h \
     src/core/room-state.h \
     src/core/wrapped-card.h \
-    src/ui/bubblechatbox.h \
-    src/ui/generic-cardcontainer-ui.h \
-    src/ui/qsan-selectable-item.h \
-    src/ui/skin-bank.h \
-    src/ui/table-pile.h \
-    src/ui/timed-progressbar.h \
-    src/ui/ui-utils.h \
     src/package/thicket.h \
     src/package/wind.h \
-    src/dialog/banipdialog.h \
     src/package/jsp.h \
-    src/pch.h \
-    src/dialog/dialogslsettings.h \
-    src/core/defines.h
+    src/pch.h
 
-FORMS += \
-    src/dialog/cardoverview.ui \
-    src/dialog/configdialog.ui \
-    src/dialog/connectiondialog.ui \
-    src/dialog/generaloverview.ui \
-    src/dialog/mainwindow.ui \
-    src/dialog/dialogslsettings.ui
+FORMS +=
+
+OTHER_FILES += \
+    script/* \
+    script/ui/* \
+    script/ui/Util/* \
+    script/ui/RoomElement/* \
+    script/ui/Dialog/*
 
 
 CONFIG(buildbot) {
@@ -254,6 +191,7 @@ win32{
 
 macx{
     ICON = resource/icon/sgs.icns
+    CONFIG += windeployqt
 }
 
 LIBS += -L.
@@ -393,3 +331,8 @@ INCLUDEPATH += $$_PRO_FILE_PWD_/include/freetype
 DEPENDPATH += $$_PRO_FILE_PWD_/include/freetype
 
 ANDROID_PACKAGE_SOURCE_DIR = $$_PRO_FILE_PWD_/resource/android
+
+DISTFILES += \
+    script/ui/RoomElement/LightBox.qml \
+    script/ui/RoomElement/SpecialArea.qml \
+    script/ui/Util/util.js

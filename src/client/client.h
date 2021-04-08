@@ -14,6 +14,8 @@ class ClientSocket;
 class Client : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_UNCREATABLE("Don't do like this.")
     Q_PROPERTY(Client::Status status READ getStatus WRITE setStatus)
 
     Q_ENUMS(Status)
@@ -76,8 +78,8 @@ public:
     {
         return player_count;
     }
-    void speakToServer(const QString &text);
-    ClientPlayer *getPlayer(const QString &name);
+    Q_INVOKABLE void speakToServer(const QString &text);
+    Q_INVOKABLE ClientPlayer *getPlayer(const QString &name);
     bool save(const QString &filename) const;
     QList<QByteArray> getRecords() const;
     QString getReplayPath() const;
@@ -108,6 +110,7 @@ public:
     void gameOver(const QVariant &);
     void loseCards(const QVariant &);
     void getCards(const QVariant &);
+    QString getCardLog(CardsMoveStruct &move);
     void updateProperty(const QVariant &);
     void killPlayer(const QVariant &player_arg);
     void revivePlayer(const QVariant &player_arg);
@@ -115,6 +118,8 @@ public:
     void setMark(const QVariant &mark_str);
     void showCard(const QVariant &show_str);
     void log(const QVariant &log_str);
+    QString appendLog(const QString &type, const QString &from_general, const QStringList &tos,
+        const QString card_str = QString(), const QString arg = QString(), const QString arg2 = QString());
     void speak(const QVariant &speak_data);
     void addHistory(const QVariant &history);
     void moveFocus(const QVariant &focus);
@@ -274,6 +279,7 @@ signals:
     void error_message(const QString &msg);
     void player_added(ClientPlayer *new_player);
     void player_removed(const QString &player_name);
+    void property_updated(QVariantList args);
     // choice signal
     void generals_got(const QStringList &generals);
     void kingdoms_got(const QStringList &kingdoms);
@@ -284,7 +290,7 @@ signals:
     void roles_got(const QString &scheme, const QStringList &roles);
 
     void seats_arranged(const QList<const ClientPlayer *> &seats);
-    void hp_changed(const QString &who, int delta, DamageStruct::Nature nature, bool losthp);
+    void hp_changed(const QString &who, int delta, int nature, bool losthp);
     void maxhp_changed(const QString &who, int delta);
     void status_changed(Client::Status oldStatus, Client::Status newStatus);
     void avatars_hiden();
@@ -292,7 +298,7 @@ signals:
     void player_killed(const QString &who);
     void player_revived(const QString &who);
     void card_shown(const QString &player_name, int card_id);
-    void log_received(const QStringList &log_str);
+    void log_received(const QString &log_str);
     void guanxing(const QList<int> &card_ids, bool single_side);
     void gongxin(const QList<int> &card_ids, bool enable_heart, QList<int> enabled_ids);
     void focus_moved(const QStringList &focus, QSanProtocol::Countdown countdown);
@@ -307,7 +313,7 @@ signals:
     void game_started();
     void game_over();
     void standoff();
-    void event_received(const QVariant &);
+    void event_received(QVariantList args);
 
     void move_cards_lost(int moveId, QList<CardsMoveStruct> moves);
     void move_cards_got(int moveId, QList<CardsMoveStruct> moves);
