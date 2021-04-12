@@ -7,7 +7,7 @@
 
 //#define LOGNETWORK
 
-#include <ft2build.h>
+// #include <ft2build.h>
 
 #ifdef __cplusplus
 

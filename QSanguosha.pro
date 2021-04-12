@@ -324,12 +324,6 @@ android:DEFINES += "\"getlocaledecpoint()='.'\""
 
 TRANSLATIONS += builds/sanguosha.ts
 
-CONFIG(debug, debug|release): LIBS += -lfreetype_D
-else:LIBS += -lfreetype
-
-INCLUDEPATH += $$_PRO_FILE_PWD_/include/freetype
-DEPENDPATH += $$_PRO_FILE_PWD_/include/freetype
-
 ANDROID_PACKAGE_SOURCE_DIR = $$_PRO_FILE_PWD_/resource/android
 
 DISTFILES += \
