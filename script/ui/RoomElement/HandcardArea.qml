@@ -32,7 +32,7 @@ Item {
         card.autoBack = true;
         card.draggable = true;
         card.selectable = false;
-        card.selectedChanged.connect(adjustCards);
+        card.clicked.connect(adjustCards);
     }
 
     function remove(outputs)
@@ -74,7 +74,6 @@ Item {
 
         if (animated) {
             for (i = 0; i < cards.length; i++)
-                // cards[i].goBack(true);
                 roomScene.cardItemGoBack(cards[i], true)
         }
     }
@@ -110,5 +109,23 @@ Item {
                 break;
             }
         }
+    }
+
+    function unselectAll(exceptId) {
+        let card = undefined;
+        for (var i = 0; i < selectedCards.length; i++) {
+            if (selectedCards[i].cid !== exceptId) {
+                selectedCards[i].selected = false;
+            } else {
+                card = selectedCards[i];
+                card.selected = true;
+            }
+        }
+        if (card === undefined) {
+            selectedCards = [];
+        } else {
+            selectedCards = [card];
+        }
+        updateCardPosition(true);
     }
 }

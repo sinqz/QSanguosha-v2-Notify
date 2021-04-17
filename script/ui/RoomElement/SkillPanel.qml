@@ -3,11 +3,13 @@ import QtQuick 2.15
 
 Item {
     property var skills: []
+    property alias skill_buttons: skill_buttons
 
     width: childrenRect.width
     height: childrenRect.height
 
     Repeater {
+        id: skill_buttons
         model: skills
 
         SkillButton {
@@ -18,10 +20,11 @@ Item {
             name: modelData.name
             type: modelData.type
             enabled: modelData.enabled
+            pressed: modelData.pressed
 
             onPressedChanged: {
-                if (enabled)
-                    roomScene.onSkillActivated(modelData.sid, pressed);
+                if (enabled && type === "proactive")
+                    roomScene.activateSkill(modelData.name, pressed);
             }
         }
     }

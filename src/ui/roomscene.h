@@ -5,6 +5,7 @@
 #include "clientplayer.h"
 #include "client.h"
 #include "structs.h"
+#include "aux-skills.h"
 
 class RoomScene : public QQuickItem
 {
@@ -46,8 +47,6 @@ signals:
     void enablePhotos(const QVariant &seats);
     // void startEmotion(const QString &emotion, int seat);
     void playAudio(const QString &path);
-    void showPrompt(const QString &prompt);
-    void hidePrompt();
     void setAcceptEnabled(bool enabled);
     void setRejectEnabled(bool enabled);
     void setFinishEnabled(bool enabled);
@@ -58,7 +57,7 @@ signals:
     void showOptions(const QStringList &options);
     void showArrangeCardBox(const QVariant &cards, const QVariant &capacities, const QVariant &names);
     void addLog(const QString &richText);
-    void updateStatus(Client::Status oldStatus, Client::Status newStatus);
+    void updateStatus(int oldStatus, int newStatus);
 
 };
 

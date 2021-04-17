@@ -7,7 +7,7 @@ import "RoomElement"
 import "Util/util.js" as Utility
 
 RoomScene {
-    property var dashboardModel: null
+    property var dashboardModel: []
     property var photoModel: []
     property int playerNum: 0
     property int currentPlayerNum: 1
@@ -22,12 +22,16 @@ RoomScene {
         doAppearingAnimation,
     ]
     property var anim_names: ["", "indicate", "lightbox", "nullification", "huashen", "fire", "lighting"]
+    property var selected_targets: []
 
     id: roomScene
     anchors.fill: parent
 
     // signal chat
     signal return_to_start
+    signal setAcceptEnabled(bool enabled)
+    signal setRejectEnabled(bool enabled)
+    signal setFinishEnabled(bool enabled)
 
     FontLoader {
         source: "../../font/simli.ttf"
@@ -87,7 +91,9 @@ RoomScene {
                             userRole: modelData.role
                             kingdom : modelData.kingdom
 
-                            onSelectedChanged: roomScene.onPhotoSelected(seat, selected);
+                            onSelectedChanged: {
+                                roomScene.updateSelectedTargets(clientPlayer.objectName, selected, selected_targets);
+                            }
                         }
                     }
 
@@ -156,17 +162,17 @@ RoomScene {
 
             onAccepted: {
                 closeDialog();
-                roomScene.onAccepted();
+                roomScene.doOkButton();
             }
 
             onRejected: {
                 closeDialog();
-                roomScene.onRejected();
+                roomScene.doCancelButton();
             }
 
             onFinished: {
                 closeDialog();
-                roomScene.onFinished();
+                roomScene.doFinishButton();
             }
 
             Connections {
@@ -189,15 +195,15 @@ RoomScene {
                     dashboard.userRole = Qt.binding(function(){return model.role;});
                 }
 
-                function onSetAcceptEnabled() {
+                function onSetAcceptEnabled(enabled) {
                     dashboard.acceptButton.enabled = enabled;
                 }
 
-                function onSetRejectEnabled() {
+                function onSetRejectEnabled(enabled) {
                     dashboard.rejectButton.enabled = enabled;
                 }
 
-                function onSetFinishEnabled() {
+                function onSetFinishEnabled(enabled) {
                     dashboard.finishButton.enabled = enabled;
                 }
             }
@@ -205,15 +211,23 @@ RoomScene {
             Connections {
                 target: dashboard.handcardArea
                 function onCardSelected(cardId, selected) {
-                    roomScene.onCardSelected(cardId, selected);
+                    dashboard.cardSelected(cardId, selected);
                 }
             }
 
             Connections {
                 target: dashboard.equipArea
                 function onCardSelected(cardId, selected) {
-                    roomScene.onCardSelected(cardId, selected);
+                    dashboard.cardSelected(cardId, selected);
                 }
+            }
+
+            onSelectedChanged: {
+                roomScene.updateSelectedTargets(clientPlayer.objectName, selected, selected_targets);
+            }
+
+            onCard_selected: {
+                roomScene.enableTargets(card)
             }
         }
     }
@@ -547,6 +561,14 @@ RoomScene {
             let photo3 = getItemByPlayerName(args[1])
             photo3.clientPlayer.addSkill(args[2])
             photo3.clientPlayerChanged()
+            if (photo3.clientPlayer === Self) {
+                let json_data = Router.get_skill_details(args[2])
+                if (json_data !== "") {
+                    dashboard.headSkills.push(JSON.parse(json_data));
+                    dashboard.headSkills = dashboard.headSkills;
+                }
+            }
+
             break;
         case 7: // S_GAME_EVENT_LOSE_SKILL,
             let photo4 = getItemByPlayerName(args[1])
@@ -572,19 +594,63 @@ RoomScene {
     }
 
     onUpdateStatus: {
-        // @TODO: skill buttons
+        var i = 0;
+        var skill_names = [];
+        for (i = 0; i < dashboard.headSkills.length; i++)
+            skill_names.push(dashboard.headSkills[i].name);
+        let enabled_skill_buttons = Router.roomscene_get_enable_skills(skill_names, newStatus);
+        for (i = 0; i < dashboard.headSkills.length; i++) {
+            dashboard.headSkills[i].enabled =
+                    enabled_skill_buttons.contains(dashboard.headSkills[i].name);
+        }
+        dashboard.headSkills = dashboard.headSkills;
 
         switch (newStatus & Client.ClientStatusBasicMask) {
         case Client.NotActive:
+            // @TODO: dialog & guanxing
+            promptBox.visible = false;
+            ClientInstance.clearPromptDoc();
+
+            dashboard.disableAllCards();
+            selected_targets = [];
+
+            setAcceptEnabled(false);
+            setRejectEnabled(false);
+            setFinishEnabled(false);
+
+            // @TODO: dashboard pending & progress bar
+
             break;
         case Client.Responding:
+            showPrompt(ClientInstance.getPrompt());
+
+            setAcceptEnabled(false);
+            setRejectEnabled(ClientInstance.m_isDiscardActionRefusable);
+            setFinishEnabled(false);
+
+            let skill_name = Router.update_response_skill();
+            if (skill_name !== "") {
+                dashboard.startPending(skill_name);
+            }
             break;
         case Client.AskForShowOrPindian:
             break;
         case Client.Playing:
+            dashboard.enableCards();
+            setAcceptEnabled(false);
+            setRejectEnabled(false);
+            setFinishEnabled(true);
             break;
         case Client.Discarding:
         case Client.Exchanging:
+            showPrompt(ClientInstance.getPrompt());
+
+            setAcceptEnabled(false);
+            setRejectEnabled(ClientInstance.m_isDiscardActionRefusable);
+            setFinishEnabled(false);
+
+            Router.update_discard_skill();
+            dashboard.startPending("discard");
             break;
         case Client.ExecDialog:
             setAcceptEnabled(false)
@@ -592,6 +658,12 @@ RoomScene {
             setFinishEnabled(false)
             break;
         case Client.AskForSkillInvoke:
+            showPrompt(ClientInstance.getPrompt());
+
+            setAcceptEnabled(true);
+            setRejectEnabled(true);
+            setFinishEnabled(false);
+
             break;
         case Client.AskForPlayerChoose:
             break;
@@ -601,7 +673,7 @@ RoomScene {
             setFinishEnabled(false)
 
             popupBox.item.cardSelected.connect(function(cid){
-                roomScene.onAmazingGraceTaken(cid);
+                ClientInstance.onPlayerChooseAG(cid);
             });
             break;
         case Client.AskForYiji:
@@ -612,14 +684,211 @@ RoomScene {
             setRejectEnabled(false)
             setFinishEnabled(false)
             break;
-        case Client.AskForGeneralTaken:
-        case Client.AskForArrangement:
-            setAcceptEnabled(false)
-            setRejectEnabled(false)
-            setFinishEnabled(false)
-            break;
         }
         // @TODO
+    }
+
+    function doOkButton() {
+        switch (ClientInstance.status & Client.ClientStatusBasicMask) {
+        case Client.Playing:
+            if (dashboard.getSelectedCard() !== -1) {
+                Router.roomscene_use_card(dashboard.getSelectedCard(), selected_targets);
+                enableTargets(-1);
+            }
+            break;
+        case Client.Responding:
+            if (dashboard.getSelectedCard() !== -1) {
+                if (ClientInstance.status === Client.Responding) {
+                    selected_targets = [];
+                }
+                Router.on_player_response_card(dashboard.getSelectedCard(), selected_targets);
+                hidePrompt();
+            }
+
+            dashboard.unSelectAll();
+            break;
+        case Client.AskForShowOrPindian:
+            if (dashboard.getSelectedCard() !== -1) {
+                Router.on_player_response_card(dashboard.getSelectedCard());
+                hidePrompt();
+            }
+            dashboard.unSelectAll();
+            break;
+        case Client.Discarding:
+        case Client.Exchanging:
+            let card = dashboard.pending_card;
+            if (card !== -1) {
+                Router.roomscene_discard(JSON.stringify(card));
+                dashboard.stopPending();
+                hidePrompt();
+            }
+            break;
+        case Client.NotActive:
+            toast.show("The OK button should be disabled when client is not active!");
+            return;
+        case Client.AskForAG:
+            ClientInstance.onPlayerChooseAG(-1);
+            return;
+        case Client.ExecDialog:
+            toast.show("The OK button should be disabled when client is in executing dialog");
+            return;
+        case Client.AskForSkillInvoke:
+            hidePrompt();
+            let skill_name = ClientInstance.getSkillNameToInvoke();
+            //dashboard.highlightEquip(skill_name, false);
+            Router.roomscene_invoke_skill(true);
+            break;
+        case Client.AskForPlayerChoose:
+            ClientInstance.onPlayerChoosePlayer(selected_targets[0]);
+            hidePrompt();
+            break;
+        case Client.AskForYiji:/*
+            const Card *card = dashboard.pendingCard();
+            if (card) {
+                ClientInstance.onPlayerReplyYiji(card, selected_targets.first());
+                dashboard.stopPending();
+                hidePrompt();
+            }*/
+            break;
+        case Client.AskForGuanxing:
+            //guanxing_box.reply();
+            break;
+        case Client.AskForGongxin:
+            ClientInstance.onPlayerReplyGongxin();
+            //card_container.clear();
+            break;
+        }
+
+        dashboard.stopPending();
+        dashboard.deactivateSkillButton();
+        // @TODO: disextract pile
+    }
+
+    function doCancelButton() {
+        switch (ClientInstance.status & Client.ClientStatusBasicMask) {
+        case Client.Playing:
+            dashboard.unSelectAll();
+            dashboard.stopPending();
+            dashboard.deactivateSkillButton();
+            dashboard.enableCards();
+            updateStatus(ClientInstance.status, ClientInstance.status);
+            break;
+        case Client.Responding:
+            dashboard.deactivateSkillButton();
+
+            //TODO:
+            //QString pattern = Sanguosha->currentRoomState()->getCurrentCardUsePattern();
+            //if (pattern.isEmpty()) return;
+
+            dashboard.unSelectAll();
+
+            dashboard.stopPending();
+            Router.on_player_response_card(JSON.stringify({skill: "mbks", subcards: []}), [])
+            hidePrompt();
+            break;
+        case Client.AskForShowOrPindian:
+            dashboard.unSelectAll();
+            dashboard.stopPending();
+            Router.on_player_response_card(JSON.stringify({skill: "mbks", subcards: []}), [])
+            hidePrompt();
+            break;
+        case Client.Discarding:
+        case Client.Exchanging:
+            dashboard.unSelectAll();
+            dashboard.stopPending();
+            Router.roomscene_discard(JSON.stringify({skill: "mbks", subcards: []}))
+            hidePrompt();
+            break;/*
+        case Client::ExecDialog: {
+            m_choiceDialog->reject();
+            break;
+        }*/
+        case Client.AskForSkillInvoke:
+            let skill_name = ClientInstance.getSkillNameToInvoke();
+            //dashboard->highlightEquip(skill_name, false);
+            Router.roomscene_invoke_skill(false);
+            hidePrompt();
+            break;/*
+        case Client.AskForYiji: {
+            dashboard->stopPending();
+            ClientInstance->onPlayerReplyYiji(NULL, NULL);
+            hidePrompt();
+            break;
+        }*/
+        case Client.AskForPlayerChoose:
+            dashboard.stopPending();
+            ClientInstance.onPlayerChoosePlayer("mbks");
+            hidePrompt();
+            break;
+        default:
+            break;
+        }
+    }
+
+    function doFinishButton() {
+        dashboard.stopPending();
+        dashboard.unSelectAll();
+        Router.roomscene_finish();
+    }
+
+    function enableTargets(card) { // card: int | { skill: string, subcards: int[] }
+        let i = 0;
+        let enabled = true;
+        let candidate = (!isNaN(card) && card !== -1) || typeof(card) === "string";
+        let all_photos = [dashboard];
+        for (i = 0; i < playerNum - 1; i++) {
+            all_photos.push(photos.itemAt(i))
+        }
+        selected_targets = [];
+        for (i = 0; i < playerNum; i++) {
+            all_photos[i].selected = false;
+        }
+
+        if (candidate) {
+            let data = JSON.parse(Router.roomscene_enable_targets(card, selected_targets));
+            setAcceptEnabled(data.ok_enabled);
+            let enables = data.enabled_targets;
+            all_photos.forEach(function(photo) {
+                photo.state = "candidate";
+                photo.selectable = enables.contains(photo.clientPlayer.objectName);
+            });
+        } else {
+            all_photos.forEach(function(photo) {
+                photo.state = "normal";
+                photo.selected = false;
+            });
+
+            setAcceptEnabled(false);
+        }
+    }
+
+    function updateSelectedTargets(player_name, selected, targets) {
+        let i = 0;
+        let card = dashboard.getSelectedCard();
+        let all_photos = [dashboard]
+        for (i = 0; i < playerNum - 1; i++) {
+            all_photos.push(photos.itemAt(i))
+        }
+
+        let data = JSON.parse(Router.roomscene_update_selected_targets(card, player_name, selected, targets));
+        setAcceptEnabled(data.ok_enabled);
+        selected_targets = data.selected_targets;
+        let enables = data.enabled_targets;
+        all_photos.forEach(function(photo) {
+            if (!selected_targets.contains(photo.clientPlayer.objectName))
+                photo.selectable = enables.contains(photo.clientPlayer.objectName);
+        })
+        setAcceptEnabled(data.ok_enabled);
+    }
+
+    function activateSkill(skill_name, pressed) {
+        if (pressed) {
+            dashboard.startPending(skill_name);
+            setRejectEnabled(true);
+            // @TODO: nothing
+        } else {
+            doCancelButton();
+        }
     }
 
     onFillCards: {
@@ -654,6 +923,15 @@ RoomScene {
                 winners.append(players[i])
         for (let j = 0; j < winners.length; j++)
             popupBox.item.add(winners[j]);
+    }
+
+    function showPrompt(prompt) {
+        promptBox.text = prompt;
+        promptBox.visible = true;
+    }
+
+    function hidePrompt() {
+        promptBox.visible = false;
     }
 
 /*
@@ -691,15 +969,6 @@ RoomScene {
     onPlayAudio: {
         soundEffect.fileName = "audio/" + path;
         soundEffect.play();
-    }
-
-    onShowPrompt: {
-        promptBox.text = prompt;
-        promptBox.visible = true;
-    }
-
-    onHidePrompt: {
-        promptBox.visible = false;
     }
 
     onAskToChoosePlayerCard: {

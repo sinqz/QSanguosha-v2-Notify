@@ -6,6 +6,7 @@ Image {
 
     width: 480
     height: 200
+    scale: visible ? 1 : 0
     source: "../../../image/system/tip"
 
     signal finished()
@@ -19,5 +20,18 @@ Image {
         font.family: "LiSu"
         font.pixelSize: 22
         wrapMode: Text.WordWrap
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        drag.target: parent
+        drag.axis: Drag.XAndYAxis
+    }
+
+    Behavior on scale {
+        NumberAnimation {
+            duration: 200
+            easing.type: Easing.InOutQuad
+        }
     }
 }

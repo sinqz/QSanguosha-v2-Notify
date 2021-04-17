@@ -5,6 +5,7 @@
 #include "skill.h"
 #include "room-state.h"
 #include "protocol.h"
+#include "aux-skills.h"
 
 class Recorder;
 class Replayer;
@@ -17,6 +18,7 @@ class Client : public QObject
     QML_ELEMENT
     QML_UNCREATABLE("Don't do like this.")
     Q_PROPERTY(Client::Status status READ getStatus WRITE setStatus)
+    Q_PROPERTY(bool m_isDiscardActionRefusable MEMBER m_isDiscardActionRefusable)
 
     Q_ENUMS(Status)
 
@@ -85,11 +87,17 @@ public:
     QString getReplayPath() const;
     Replayer *getReplayer() const;
     QString getPlayerName(const QString &str);
-    QString getSkillNameToInvoke() const;
+    Q_INVOKABLE QString getSkillNameToInvoke() const;
     QString getSkillNameToInvokeData() const;
 
     QTextDocument *getLinesDoc() const;
     QTextDocument *getPromptDoc() const;
+    Q_INVOKABLE void clearPromptDoc() {
+        prompt_doc->clear();
+    }
+    Q_INVOKABLE QString getPrompt() {
+        return prompt_doc->toRawText();
+    }
 
     typedef void (Client::*Callback) (const QVariant &);
 
@@ -214,6 +222,12 @@ public:
     QList<const Card *> discarded_list;
     QStringList players_to_choose;
     int m_bossLevel;
+    ResponseSkill *response_skill;
+    ShowOrPindianSkill *showorpindian_skill;
+    DiscardSkill *discard_skill;
+    NosYijiViewAsSkill *yiji_skill;
+    ChoosePlayerSkill *choose_skill;
+    QMap<QString, void *> *aux_skill_map;
 
 public slots:
     void signup();
@@ -221,7 +235,7 @@ public slots:
     void onPlayerMakeChoice();
     void onPlayerChooseCard(int card_id = -2);
     void onPlayerChooseAG(int card_id);
-    void onPlayerChoosePlayer(const Player *player);
+    void onPlayerChoosePlayer(const QString player_name);
     void trust();
     void addRobot(int num);
 
@@ -292,7 +306,7 @@ signals:
     void seats_arranged(const QList<const ClientPlayer *> &seats);
     void hp_changed(const QString &who, int delta, int nature, bool losthp);
     void maxhp_changed(const QString &who, int delta);
-    void status_changed(Client::Status oldStatus, Client::Status newStatus);
+    void status_changed(int oldStatus, int newStatus);
     void avatars_hiden();
     void pile_reset();
     void player_killed(const QString &who);
