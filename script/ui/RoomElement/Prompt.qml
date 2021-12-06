@@ -1,5 +1,5 @@
 import QtQuick 2.15
-
+import "../Util/skin-bank.js" as SkinBank
 
 Image {
     property alias text: content.text
@@ -7,7 +7,7 @@ Image {
     width: 480
     height: 200
     scale: visible ? 1 : 0
-    source: "../../../image/system/tip"
+    source: SkinBank.PROMPT
 
     signal finished()
 

@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "../Util/skin-bank.js" as SkinBank
 
 Item {
     property string name
@@ -10,7 +11,7 @@ Item {
     id: button
 
     Image {
-        source: "../../../image/button/" + name + "/" + (enabled ? mouseState : "disabled")
+        source: SkinBank.BUTTONS_DIR + name + "/" + (enabled ? mouseState : "disabled")
 
         MouseArea {
             anchors.fill: parent

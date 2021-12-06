@@ -1046,9 +1046,8 @@ void Client::askForSkillInvoke(const QVariant &arg)
     setStatus(AskForSkillInvoke);
 }
 
-void Client::onPlayerMakeChoice()
+void Client::onPlayerMakeChoice(const QString &option)
 {
-    QString option = sender()->objectName();
     replyToServer(S_COMMAND_MULTIPLE_CHOICE, option);
     setStatus(NotActive);
 }

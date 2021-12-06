@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtGraphicalEffects 1.0
 import "../Util"
 import "../Util/util.js" as Utility
+import "../Util/skin-bank.js" as SkinBank
 
 Item {
     property int cid: 0
@@ -55,14 +56,14 @@ Item {
 
     Image {
         id: cardItem
-        source: isKnown ? (name != "" ? "../../../image/card/" + name : "") : "../../../image/card/card-back"
+        source: isKnown ? (name != "" ? SkinBank.CARD_DIR + name : "") : SkinBank.CARD_BACK
         anchors.fill: parent
     }
 
     Image {
         id: suitItem
         visible: isKnown
-        source: suit != "" ? "../../../image/card/suit/" + suit : ""
+        source: suit != "" ? SkinBank.CARD_SUIT_DIR + suit : ""
         x: 3
         y: 19
         width: 21
@@ -72,7 +73,7 @@ Item {
     Image {
         id: numberItem
         visible: isKnown
-        source: (color != "" && number > 0) ? "../../../image/card/number/" + color + "/" + number : ""
+        source: (color != "" && number > 0) ? SkinBank.CARD_NUMBER_DIR + color + "/" + number : ""
         x: 0
         y: 2
         width: 27

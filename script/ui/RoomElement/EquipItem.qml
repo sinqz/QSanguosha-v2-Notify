@@ -1,11 +1,13 @@
 import QtQuick 2.15
 import "../Util"
 import "../Util/util.js" as Utility
+import "../Util/skin-bank.js" as SkinBank
 
 Item {
     property string name: ""
     property string suit: ""
     property int number: 0
+    property int cid: 0
     property bool selectable: false
     property bool selected: false
 
@@ -15,11 +17,11 @@ Item {
     opacity: 0
 
     Image {
-        source: name ? "../../../image/card/equip/" + name : ""
+        source: name ? SkinBank.EQUIP_DIR + name : ""
     }
 
     Image {
-        source: suit ? "../../../image/card/suit/" + suit : ""
+        source: suit ? SkinBank.CARD_SUIT_DIR + suit : ""
         x: parent.width - width
         y: Math.round((parent.height - height) / 2)
     }
@@ -59,17 +61,20 @@ Item {
 
     MouseArea {
         anchors.fill: parent
+        hoverEnabled: true
+
         onClicked: {
+            console.log(selectable)
             if (!selectable || selectAnime.running || unselectAnime.running)
                 return;
             selected = !selected;
         }
-    }
 
-    ToolTipArea {
-        enabled: name !== ""
-        text: Sanguosha.translate(name) + "[<img src='../../../image/system/log/"
-              + suit + ".png' height = 14/> " + Utility.convertNumber(number) + "] " + Sanguosha.translate(":" + name)
+        ToolTipArea {
+            enabled: name !== ""
+            text: Sanguosha.translate(name) + "[<img src='../../../image/system/log/"
+                + suit + ".png' height = 14/> " + Utility.convertNumber(number) + "] " + Sanguosha.translate(":" + name)
+        }
     }
 
     ParallelAnimation {

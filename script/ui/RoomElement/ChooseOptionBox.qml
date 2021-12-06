@@ -3,10 +3,11 @@ import "../Util"
 
 GraphicsBox {
     property var options: []
+    property string skill_name: ""
     property int result
 
     id: root
-    title.text: qsTr("Please choose")
+    title.text: Sanguosha.translate(skill_name) + "：请选择"
     width: Math.max(140, body.width + 20)
     height: body.height + title.height + 20
 
@@ -20,7 +21,7 @@ GraphicsBox {
             model: options
 
             MetroButton {
-                text: qsTr(modelData)
+                text: Sanguosha.translate(modelData)
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 onClicked: {

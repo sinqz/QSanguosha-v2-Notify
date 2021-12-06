@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import "../Util"
 import "../Util/util.js" as Utility
+import "../Util/skin-bank.js" as SkinBank
 
 GraphicsBox {
     property alias generalList: generalList
@@ -53,7 +54,7 @@ GraphicsBox {
 
             Image {
                 anchors.centerIn: parent
-                source: "../../../image/split-line"
+                source: SkinBank.SPLIT_LINE
             }
         }
 

@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "../Util/skin-bank.js" as SkinBank
 
 Item {
     property alias rows: grid.rows
@@ -22,7 +23,7 @@ Item {
             model: cards
 
             Image {
-                source: "../../../image/card/icon/" + name
+                source: SkinBank.DELAYED_TRICK_DIR + name
             }
         }
     }

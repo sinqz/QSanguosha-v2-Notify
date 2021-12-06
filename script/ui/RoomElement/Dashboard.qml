@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.1
 import QtGraphicalEffects 1.0
 import Sanguosha 1.0
 import "../Util"
+import "../Util/skin-bank.js" as SkinBank
 
 RowLayout {
     property string headGeneral: ""
@@ -122,7 +123,7 @@ RowLayout {
                     }
 
                     Image {
-                        source: root.phase != "inactive" ? "../../../image/system/phase/" + root.phase + ".png" : ""
+                        source: root.phase != "inactive" ? SkinBank.PHASE_DIR + root.phase + ".png" : ""
                         y: -height - 5
                         x: parent.width - width
                         visible: root.phase != "inactive"
@@ -130,7 +131,7 @@ RowLayout {
 
                     Image {
                         anchors.centerIn: parent
-                        source: "../../../image/system/death/" + userRole
+                        source: SkinBank.ROLE_DIR + userRole
                         visible: !root.alive
                     }
 
@@ -167,7 +168,7 @@ RowLayout {
 
             Image {
                 id: platter
-                source: "../../../image/dashboard/platter"
+                source: SkinBank.PLATTER
 
                 Colorize {
                     anchors.fill: parent
@@ -209,7 +210,7 @@ RowLayout {
                 }
 
                 Image {
-                    source: "../../../image/system/role/" + userRole
+                    source: SkinBank.MINI_ROLE_DIR + userRole
                     x: 70
                     y: 3
                 }
@@ -217,7 +218,7 @@ RowLayout {
                 Image {
                     x: 71
                     y: 117
-                    source: seat > 0 ? "../../../image/dashboard/seatnum/" + seat : ""
+                    source: seat > 0 ? SkinBank.SEATNUM_DIR + seat : ""
                     visible: seat > 0
                 }
             }
@@ -238,11 +239,11 @@ RowLayout {
         }
 
         Image {
-            source: "../../../image/dashboard/base"
+            source: SkinBank.DASHBOARD_BASE
         }
 
         Image {
-            source: "../../../image/dashboard/hpbase"
+            source: SkinBank.HP_BASE
             anchors.bottom: parent.bottom
             anchors.right: parent.right
             anchors.rightMargin: 3
@@ -260,7 +261,7 @@ RowLayout {
         }
 
         Image {
-            source: "../../../image/dashboard/avatarbg"
+            source: SkinBank.AVATAR_BG
         }
 
         GeneralAvatar {
@@ -299,7 +300,7 @@ RowLayout {
 
             Image {
                 anchors.fill: parent
-                source: "../../../image/general/faceturned"
+                source: SkinBank.FACE_TURNED
                 visible: !faceup
             }
 
@@ -383,13 +384,13 @@ RowLayout {
 
             Image {
                 anchors.fill: parent
-                source: "../../../image/general/faceturned"
+                source: SkinBank.FACE_TURNED
                 visible: !faceup
             }
         }
 
         Image {
-            source: "../../../image/system/chain"
+            source: SkinBank.CHAIN
             visible: root.chained
             anchors.horizontalCenter: headGeneralItem.horizontalCenter
             anchors.verticalCenter: headGeneralItem.verticalCenter
@@ -438,10 +439,6 @@ RowLayout {
 
     function getSelectedCard() {
         if (view_as_skill !== "") {
-            console.log(JSON.stringify({
-                skill: view_as_skill,
-                subcards: pendings
-            }));
             return JSON.stringify({
                 skill: view_as_skill,
                 subcards: pendings
@@ -462,7 +459,14 @@ RowLayout {
         });
         handcardAreaItem.enableCards(enabled_cards);
 
-        // @TODO: equipment
+        let equip;
+        for (let i = 0; i < 5; i++) {
+            equip = equipAreaItem.equips.itemAt(i);
+            if (equip.selected || equip.cid !== -1 &&
+                Router.vs_view_filter(view_as_skill, pendings, equip.cid))
+                enabled_cards.push(equip.cid);
+        }
+        equipAreaItem.enableCards(enabled_cards);
 
         if (Router.vs_can_view_as(view_as_skill, pendings)) {
             pending_card = {
@@ -481,9 +485,9 @@ RowLayout {
         pendings = [];
         handcardAreaItem.unselectAll();
 
-        // @TODO: expand pile
+        // TODO: expand pile
 
-        // @TODO: equipment
+        // TODO: equipment
 
         updatePending();
     }
@@ -496,13 +500,20 @@ RowLayout {
 
     function stopPending() {
         view_as_skill = "";
-        pendings = [];
         pending_card = -1;
 
-        // @TODO: expand pile
+        // TODO: expand pile
 
-        // @TODO: equipment
+        let equip;
+        for (let i = 0; i < 5; i++) {
+            equip = equipAreaItem.equips.itemAt(i);
+            if (equip.name !== "") {
+                equip.selected = false;
+                equip.selectable = false;
+            }
+        }
 
+        pendings = [];
         handcardAreaItem.adjustCards();
         card_selected(-1);
     }

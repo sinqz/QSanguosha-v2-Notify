@@ -455,7 +455,7 @@ RoomScene {
             return;
 
         var photo = getItemByPlayerName(who)
-        var animation = component.createObject(roomScene, {source: emotion, x: photo.x, y: photo.y});
+        var animation = component.createObject(photo, {source: emotion, anchors: {centerIn: photo}});
         animation.finished.connect(function(){animation.destroy();});
         animation.start();
     }
@@ -634,6 +634,15 @@ RoomScene {
             }
             break;
         case Client.AskForShowOrPindian:
+            showPrompt(ClientInstance.getPrompt());
+
+            setAcceptEnabled(false);
+            setRejectEnabled(false);
+            setFinishEnabled(false);
+
+            Router.showorpindian_skill_prepare();
+            dashboard.startPending("showorpindian-skill");
+
             break;
         case Client.Playing:
             dashboard.enableCards();
@@ -653,6 +662,8 @@ RoomScene {
             dashboard.startPending("discard");
             break;
         case Client.ExecDialog:
+            // popupBox.item.open()
+
             setAcceptEnabled(false)
             setRejectEnabled(false)
             setFinishEnabled(false)
@@ -666,6 +677,15 @@ RoomScene {
 
             break;
         case Client.AskForPlayerChoose:
+            showPrompt(ClientInstance.getPrompt());
+
+            setAcceptEnabled(false);
+            setRejectEnabled(ClientInstance.m_isDiscardActionRefusable);
+            setFinishEnabled(false);
+
+            Router.choose_skill_setPlayerNames();
+            dashboard.startPending("choose_player");
+
             break;
         case Client.AskForAG:
             setAcceptEnabled(ClientInstance.m_isDiscardActionRefusable)
@@ -677,6 +697,15 @@ RoomScene {
             });
             break;
         case Client.AskForYiji:
+            showPrompt(ClientInstance.getPrompt());
+
+            setAcceptEnabled(false);
+            setRejectEnabled(ClientInstance.m_isDiscardActionRefusable);
+            setFinishEnabled(false);
+
+            Router.yiji_skill_prepare();
+            dashboard.startPending("askforyiji");
+
             break;
         case Client.AskForGuanxing:
         case Client.AskForGongxin:
@@ -685,7 +714,7 @@ RoomScene {
             setFinishEnabled(false)
             break;
         }
-        // @TODO
+        // TODO: timeout
     }
 
     function doOkButton() {
@@ -709,7 +738,8 @@ RoomScene {
             break;
         case Client.AskForShowOrPindian:
             if (dashboard.getSelectedCard() !== -1) {
-                Router.on_player_response_card(dashboard.getSelectedCard());
+                console.log(dashboard.getSelectedCard());
+                Router.on_player_response_card(dashboard.getSelectedCard(), []);
                 hidePrompt();
             }
             dashboard.unSelectAll();
@@ -970,7 +1000,7 @@ RoomScene {
         soundEffect.fileName = "audio/" + path;
         soundEffect.play();
     }
-
+*/
     onAskToChoosePlayerCard: {
         popupBox.source = "RoomElement/PlayerCardBox.qml";
         popupBox.item.addHandcards(handcards);
@@ -981,7 +1011,7 @@ RoomScene {
             roomScene.onPlayerCardSelected(cid);
         });
     }
-
+/*
     onShowCard: {
         if (cards.length === 1) {
             var photo = getItemBySeat(fromSeat);
@@ -992,15 +1022,16 @@ RoomScene {
             //@to-do: skills like Gongxin show multiple cards
         }
     }
-
+*/
     onShowOptions: {
         popupBox.source = "RoomElement/ChooseOptionBox.qml";
-        popupBox.item.options = options;
+        popupBox.item.options = option;
+        popupBox.item.skill_name = skill_name;
         popupBox.item.accepted.connect(function(){
-            roomScene.onOptionSelected(popupBox.item.result);
+            roomScene.onOptionSelected(popupBox.item.options[popupBox.item.result]);
         });
     }
-
+/*
     onShowArrangeCardBox: {
         popupBox.source = "RoomElement/ArrangeCardBox.qml";
         popupBox.item.cards = cards;

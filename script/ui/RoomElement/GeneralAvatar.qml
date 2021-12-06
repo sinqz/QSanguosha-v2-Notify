@@ -1,5 +1,5 @@
 import QtQuick 2.15
-
+import "../Util/skin-bank.js" as SkinBank
 
 Item {
     property string avatar: ""
@@ -11,19 +11,19 @@ Item {
     height: 153
 
     Image {
-        source: "../../../image/general/full/" + avatar
+        source: SkinBank.FULLSKIN_DIR + avatar
         anchors.fill: parent
     }
 
     Image {
-        source: "../../../image/dashboard/avatar"
+        source: SkinBank.DASHBOARD_AVATAR
         anchors.fill: parent
     }
 
     Image {
         x: 2
         y: 2
-        source: "../../../image/kingdom/icon/" + (kingdom != "" && kingdom != "hidden" ? kingdom : "god")
+        source: SkinBank.KINGDOM_ICON_DIR + (kingdom != "" && kingdom != "hidden" ? kingdom : "god")
         visible: kingdom != ""
 
         Item {
@@ -49,6 +49,6 @@ Item {
     }
 
     Image {
-        source: "../../../image/dashboard/" + generalPosition
+        source: SkinBank.GENERAL_POSITION_DIR + generalPosition
     }
 }

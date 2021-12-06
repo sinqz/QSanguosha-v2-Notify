@@ -1,11 +1,11 @@
 import QtQuick 2.15
-
+import "../Util/skin-bank.js" as SkinBank
 
 Image {
     property string kingdom
     property int value
 
-    source: "../../../image/kingdom/handcard/" + (kingdom != "" && kingdom != "hidden" ? kingdom : "qun")
+    source: SkinBank.HANDCARDNUM_DIR + (kingdom != "" && kingdom != "hidden" ? kingdom : "qun")
 
     GlowText {
         id: handcardNumText

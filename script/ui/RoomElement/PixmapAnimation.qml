@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import Qt.labs.folderlistmodel 2.1
+import "../Util/skin-bank.js" as SkinBank
 
 Item {
     property string source: ""
@@ -17,7 +18,7 @@ Item {
 
     FolderListModel {
         id: fileModel
-        folder: "../../../image/animation/" + source
+        folder: SkinBank.PIXANIM_DIR + source
         showDirs: false
     }
 
@@ -26,7 +27,7 @@ Item {
         model: fileModel.count
 
         Image {
-            source: "../../../image/animation/" + root.source + "/" + index
+            source: SkinBank.PIXANIM_DIR + root.source + "/" + index
             visible: false
             onStatusChanged: {
                 if (status == Image.Ready) {

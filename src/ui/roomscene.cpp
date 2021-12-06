@@ -39,6 +39,12 @@ RoomScene::RoomScene(QQuickItem *parent) : QQuickItem(parent)
     connect(ClientInstance, &Client::ag_cleared, this, &RoomScene::clearPopupBox);
 
     connect(ClientInstance, &Client::game_over, this, &RoomScene::showGameOverBox);
+
+    connect(ClientInstance, &Client::options_got, this, &RoomScene::showOptions);
+    connect(this, &RoomScene::optionSelected, ClientInstance, &Client::onPlayerMakeChoice);
+
+    connect(ClientInstance, &Client::cards_got, this, &RoomScene::chooseCard);
+    connect(this, &RoomScene::playerCardSelected, ClientInstance, &Client::onPlayerChooseCard);
 }
 
 QString RoomScene::_translateMovement(const CardsMoveStruct &move)
@@ -118,4 +124,58 @@ QString RoomScene::_translateMovement(const CardsMoveStruct &move)
         }
     }
     return result;
+}
+
+void RoomScene::chooseCard(const ClientPlayer *player, const QString &flags, const QString &reason,
+    bool handcard_visible, Card::HandlingMethod method, QList<int> disabled_ids) {
+    static QChar handcard_flag('h');
+    static QChar equip_flag('e');
+    static QChar judging_flag('j');
+
+    QJsonArray handcards, equips, delayedTricks;
+
+    if (flags.contains(handcard_flag)) {
+        if (!handcard_visible) {
+            for (int i = 0; i < player->getHandcardNum(); i++) {
+                QJsonObject obj;
+                obj.insert("cid", -1);
+                handcards.append(obj);
+            }
+        } else {
+            foreach (const Card *card, player->getHandcards()) {
+                QJsonObject obj;
+                obj.insert("cid", card->getId());
+                obj.insert("name", card->objectName());
+                obj.insert("suit", card->getSuitString());
+                obj.insert("number", card->getNumber());
+                handcards.append(obj);
+            }
+        }
+    }
+
+    if (flags.contains(equip_flag)) {
+        foreach (const Card *card, player->getEquips()) {
+            QJsonObject obj;
+            obj.insert("cid", card->getId());
+            obj.insert("name", card->objectName());
+            obj.insert("suit", card->getSuitString());
+            obj.insert("number", card->getNumber());
+            equips.append(obj);
+        }
+    }
+
+    if (flags.contains(judging_flag)) {
+        foreach (const Card *card, player->getJudgingArea()) {
+            QJsonObject obj;
+            obj.insert("cid", card->getId());
+            obj.insert("name", card->objectName());
+            obj.insert("suit", card->getSuitString());
+            obj.insert("number", card->getNumber());
+            delayedTricks.append(obj);
+        }
+    }
+
+    emit askToChoosePlayerCard(handcards.toVariantList(),
+                               equips.toVariantList(),
+                               delayedTricks.toVariantList());
 }

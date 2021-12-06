@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import "../Util"
 import "../Util/util.js" as Utility
+import "../Util/skin-bank.js" as SkinBank
 
 Rectangle {
     property int cid: 0
@@ -59,7 +60,7 @@ Rectangle {
     Image {
         id: suitItem
         anchors.right: parent.right
-        source: suit ? "../../../image/card/suit/" + suit : ""
+        source: suit ? SkinBank.CARD_SUIT_DIR + suit : ""
         width: implicitWidth / implicitHeight * height
         height: parent.height
     }

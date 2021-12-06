@@ -53,11 +53,17 @@ signals:
     void askToChooseCards(const QVariant &cards);
 
     void askToChoosePlayerCard(const QVariant &handcards, const QVariant &equips, const QVariant &delayedTricks);
+    void playerCardSelected(int card_id);
     void showCard(int fromSeat, const QVariant &cards);
-    void showOptions(const QStringList &options);
+    void showOptions(const QString &skill_name, const QStringList &option);
+    void optionSelected(const QString &option);
     void showArrangeCardBox(const QVariant &cards, const QVariant &capacities, const QVariant &names);
     void addLog(const QString &richText);
     void updateStatus(int oldStatus, int newStatus);
+
+public slots:
+    void chooseCard(const ClientPlayer *player, const QString &flags, const QString &reason,
+    bool handcard_visible, Card::HandlingMethod method, QList<int> disabled_ids);
 
 };
 

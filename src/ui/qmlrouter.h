@@ -43,6 +43,10 @@ public:
     Q_INVOKABLE void on_player_response_card(int id, QStringList targets);
     Q_INVOKABLE void on_player_response_card(QString json_data, QStringList targets);
 
+    Q_INVOKABLE void choose_skill_setPlayerNames();
+    Q_INVOKABLE void yiji_skill_prepare();
+    Q_INVOKABLE void showorpindian_skill_prepare();
+
 private:
     const Card *qml_getCard(QString);
     QString enable_targets(const Card *, QStringList);

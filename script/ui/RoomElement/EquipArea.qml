@@ -5,6 +5,7 @@ import "../Util/util.js" as Utility
 Rectangle {
     signal cardSelected(int cardId, bool selected)
     property var subtypes: ["weapon", "armor", "defensive_horse", "offensive_horse", "treasure"]
+    property alias equips: equipItems
 
     id: root
     color: Qt.rgba(0, 0, 0, 0.65)
@@ -12,11 +13,11 @@ Rectangle {
     ListModel {
         id: cards
 
-        ListElement {cid: 0; name: ""; suit: ""; number: 0; subtype: "weapon"}
-        ListElement {cid: 0; name: ""; suit: ""; number: 0; subtype: "armor"}
-        ListElement {cid: 0; name: ""; suit: ""; number: 0; subtype: "defensive_horse"}
-        ListElement {cid: 0; name: ""; suit: ""; number: 0; subtype: "offensive_horse"}
-        ListElement {cid: 0; name: ""; suit: ""; number: 0; subtype: "treasure"}
+        ListElement {cid: -1; name: ""; suit: ""; number: 0; subtype: "weapon"}
+        ListElement {cid: -1; name: ""; suit: ""; number: 0; subtype: "armor"}
+        ListElement {cid: -1; name: ""; suit: ""; number: 0; subtype: "defensive_horse"}
+        ListElement {cid: -1; name: ""; suit: ""; number: 0; subtype: "offensive_horse"}
+        ListElement {cid: -1; name: ""; suit: ""; number: 0; subtype: "treasure"}
     }
 
     InvisibleCardArea {
@@ -91,6 +92,7 @@ Rectangle {
             model: cards
 
             EquipItem {
+                cid: model.cid
                 name: model.name
                 suit: model.suit
                 number: model.number
@@ -123,7 +125,7 @@ Rectangle {
         for (var i = 0; i < result.length; i++) {
             for (var j = 0; j < cards.count; j++) {
                 if (result[i].cid === cards.get(j).cid) {
-                    cards.set(j, {cid: 0, name: "", suit: "", number: 0});
+                    cards.set(j, {cid: -1, name: "", suit: "", number: 0});
                     equipItems.itemAt(j).hide();
                 }
             }

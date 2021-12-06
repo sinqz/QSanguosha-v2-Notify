@@ -172,7 +172,9 @@ const Card *NosYijiViewAsSkill::viewAs(const QList<const Card *> &cards) const
 
     card->clearSubcards();
     card->addSubcards(cards);
-    return card;
+    NosYijiCard *ret = new NosYijiCard;
+    ret->addSubcards(card->getSubcards());
+    return ret;
 }
 
 // ------------------------------------------------
@@ -188,6 +190,10 @@ public:
     void setPlayerNames(const QStringList &names)
     {
         set = names.toSet();
+    }
+
+    QStringList getPlayerNames() const {
+        return set.toList();
     }
 
     bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const
@@ -213,6 +219,8 @@ void ChoosePlayerSkill::setPlayerNames(const QStringList &names)
 
 const Card *ChoosePlayerSkill::viewAs() const
 {
-    return card;
+    ChoosePlayerCard *ret = new ChoosePlayerCard;
+    ret->setPlayerNames(card->getPlayerNames());
+    return ret;
 }
 

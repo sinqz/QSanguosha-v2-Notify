@@ -6,7 +6,7 @@ GraphicsBox {
     signal cardSelected(int cid)
 
     id: root
-    title.text: qsTr("Please choose one card")
+    title.text: "请选择一张卡牌"
     //@to-do: Adjust the UI design in case there are more than 7 cards
     width: 70 + Math.min(7, Math.max(1, handcards.count, equips.count, delayedTricks.count)) * 100
     height: 50 + (handcards.count > 0 ? 150 : 0) + (equips.count > 0 ? 150 : 0) + (delayedTricks.count > 0 ? 150 : 0)
@@ -44,7 +44,7 @@ GraphicsBox {
 
                 Text {
                     color: "#E4D5A0"
-                    text: qsTr("Handcard Area")
+                    text: "手牌区"
                     anchors.fill: parent
                     wrapMode: Text.WrapAnywhere
                     verticalAlignment: Text.AlignVCenter
@@ -82,7 +82,7 @@ GraphicsBox {
 
                 Text {
                     color: "#E4D5A0"
-                    text: qsTr("Equip Area")
+                    text: "装备区"
                     anchors.fill: parent
                     wrapMode: Text.WrapAnywhere
                     verticalAlignment: Text.AlignVCenter
@@ -123,7 +123,7 @@ GraphicsBox {
 
                 Text {
                     color: "#E4D5A0"
-                    text: qsTr("Delayed Trick Area")
+                    text: "判定区"
                     anchors.fill: parent
                     wrapMode: Text.WrapAnywhere
                     verticalAlignment: Text.AlignVCenter

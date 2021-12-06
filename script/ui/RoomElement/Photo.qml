@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.1
 import QtGraphicalEffects 1.0
 import Sanguosha 1.0
 import "../Util"
+import "../Util/skin-bank.js" as SkinBank
 
 Item {
     property string headGeneral: ""
@@ -92,7 +93,7 @@ Item {
         Image {
             anchors.fill: parent
             fillMode: Image.PreserveAspectCrop
-            source: "../../../image/general/full/" + (headGeneral != "" ? headGeneral : "anjiang")
+            source: SkinBank.FULLSKIN_DIR + (headGeneral != "" ? headGeneral : "anjiang")
         }
     }
 
@@ -104,7 +105,7 @@ Item {
         Image {
             anchors.fill: parent
             fillMode: Image.PreserveAspectCrop
-            source: deputyGeneral != "" ? "../../../image/general/full/" + deputyGeneral : ""
+            source: deputyGeneral != "" ? SkinBank.FULLSKIN_DIR + deputyGeneral : ""
         }
     }
 
@@ -127,7 +128,7 @@ Item {
     Image {
         id: faceTurnedCover
         anchors.fill: parent
-        source: "../../../image/general/faceturned"
+        source: SkinBank.FACE_TURNED
         visible: !faceup
     }
 
@@ -170,7 +171,7 @@ Item {
         clip: true
 
         Image {
-            source: "../../../image/general/magatamas/bg"
+            source: SkinBank.MAGATAMA_DIR + "bg"
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             visible: hpBar.visible
@@ -245,13 +246,13 @@ Item {
     }
 
     Image {
-        source: "../../../image/system/chain"
+        source: SkinBank.CHAIN
         anchors.centerIn: parent
         visible: parent.chained
     }
 
     Image {
-        source: "../../../image/system/death/save-me"
+        source: SkinBank.SAVE_ME
         anchors.centerIn: parent
         visible: parent.dying
     }
@@ -277,7 +278,7 @@ Item {
     }
 
     Image {
-        source: root.phase != "inactive" ? "../../../image/system/phase/" + root.phase + ".png" : ""
+        source: root.phase != "inactive" ? SkinBank.PHASE_DIR + root.phase + ".png" : ""
         width: parent.width * 0.9
         height: implicitHeight / implicitWidth * width
         x: (parent.width - width) / 2
@@ -296,7 +297,7 @@ Item {
 
     Image {
         anchors.centerIn: parent
-        source: "../../../image/system/death/" + userRole
+        source: SkinBank.ROLE_DIR + userRole
         visible: !parent.alive
     }
 

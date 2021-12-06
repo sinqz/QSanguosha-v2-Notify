@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "../Util/skin-bank.js" as SkinBank
 
 CardItem {
     property int gid: 0
@@ -6,6 +7,6 @@ CardItem {
     description: Sanguosha.getGeneralDescription(name)
     suit: ""
     number: 0
-    card.source: "../../../image/general/card/" + name + ".jpg"
+    card.source: SkinBank.GENERAL_CARD_DIR + name + ".jpg"
     glow.color: "white" //Engine.kingdomColor[kingdom]
 }

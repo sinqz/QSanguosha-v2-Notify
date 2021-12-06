@@ -64,7 +64,9 @@ bool QmlRouter::vs_can_view_as(QString skill_name, QList<int> ids)
 
     const Card *vs_card = skill->viewAs(selected);
     if (vs_card != NULL) {
-        delete vs_card;
+        if (vs_card->isVirtualCard() &&
+            ClientInstance->aux_skill_map->value(skill_name, NULL) == NULL)
+            delete vs_card;
         return true;
     }
     return false;
@@ -240,6 +242,31 @@ void QmlRouter::on_player_response_card(QString json_data, QStringList targets)
         selected_targets << ClientInstance->getPlayer(str);
     }
     ClientInstance->onPlayerResponseCard(card, selected_targets);
+}
+
+void QmlRouter::choose_skill_setPlayerNames()
+{
+    QMap<QString, void *> *map = ClientInstance->aux_skill_map;
+    ChoosePlayerSkill *skill = (ChoosePlayerSkill *)(map->value("choose_player", NULL));
+    skill->setPlayerNames(ClientInstance->players_to_choose);
+}
+
+void QmlRouter::yiji_skill_prepare()
+{
+    QMap<QString, void *> *map = ClientInstance->aux_skill_map;
+    NosYijiViewAsSkill *yiji_skill = (NosYijiViewAsSkill *)(map->value("askforyiji", NULL));
+    QStringList yiji_info = Sanguosha->currentRoomState()->getCurrentCardUsePattern().split("=");
+    yiji_skill->setCards(yiji_info.at(1));
+    yiji_skill->setMaxNum(yiji_info.first().toInt());
+    yiji_skill->setPlayerNames(yiji_info.last().split("+"));
+}
+
+void QmlRouter::showorpindian_skill_prepare()
+{
+    QMap<QString, void *> *map = ClientInstance->aux_skill_map;
+    ShowOrPindianSkill *showorpindian_skill = (ShowOrPindianSkill *)(map->value("showorpindian-skill", NULL));
+    QString pattern = Sanguosha->currentRoomState()->getCurrentCardUsePattern();
+    showorpindian_skill->setPattern(pattern);
 }
 
 const Card *QmlRouter::qml_getCard(QString json_data)

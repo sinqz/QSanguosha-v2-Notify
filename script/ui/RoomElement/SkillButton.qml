@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import Sanguosha 1.0
 import "../Util"
+import "../Util/skin-bank.js" as SkinBank
 
 Image {
     property string name
@@ -12,7 +13,7 @@ Image {
 
     width: columns === 1 ? 120 : 59
     height: 26
-    source: "../../../image/button/skill/" + type + "/" + columns + "-" + (enabled ? status : "disabled")
+    source: SkinBank.BUTTONS_DIR + "skill/" + type + "/" + columns + "-" + (enabled ? status : "disabled")
     clip: true
 
     onEnabledChanged: {

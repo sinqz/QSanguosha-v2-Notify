@@ -232,7 +232,7 @@ public:
 public slots:
     void signup();
     void onPlayerChooseGeneral(const QString &_name);
-    void onPlayerMakeChoice();
+    void onPlayerMakeChoice(const QString &option);
     void onPlayerChooseCard(int card_id = -2);
     void onPlayerChooseAG(int card_id);
     void onPlayerChoosePlayer(const QString player_name);
