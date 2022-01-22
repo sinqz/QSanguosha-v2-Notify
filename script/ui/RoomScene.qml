@@ -607,7 +607,7 @@ RoomScene {
 
         switch (newStatus & Client.ClientStatusBasicMask) {
         case Client.NotActive:
-            // @TODO: dialog & guanxing
+            popupBox.visible = false;
             promptBox.visible = false;
             ClientInstance.clearPromptDoc();
 
@@ -618,7 +618,10 @@ RoomScene {
             setRejectEnabled(false);
             setFinishEnabled(false);
 
-            // @TODO: dashboard pending & progress bar
+            if (dashboard.view_as_skill !== "")
+                dashboard.stopPending();
+
+            // @TODO: progress bar
 
             break;
         case Client.Responding:
@@ -1031,7 +1034,7 @@ RoomScene {
             roomScene.onOptionSelected(popupBox.item.options[popupBox.item.result]);
         });
     }
-/*
+
     onShowArrangeCardBox: {
         popupBox.source = "RoomElement/ArrangeCardBox.qml";
         popupBox.item.cards = cards;
@@ -1049,7 +1052,7 @@ RoomScene {
         });
         dashboard.acceptButton.enabled = true;
     }
-*/
+
     onPlayerNumChanged: arrangePhotos();
 
     function arrangePhotos()

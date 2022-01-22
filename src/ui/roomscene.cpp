@@ -45,6 +45,9 @@ RoomScene::RoomScene(QQuickItem *parent) : QQuickItem(parent)
 
     connect(ClientInstance, &Client::cards_got, this, &RoomScene::chooseCard);
     connect(this, &RoomScene::playerCardSelected, ClientInstance, &Client::onPlayerChooseCard);
+
+    connect(ClientInstance, &Client::guanxing, this, &RoomScene::askForGuanxing);
+    //connect(this, &RoomScene::arrangeCardsDone, ClientInstance, &Client::onPlayerReplyGuanxing);
 }
 
 QString RoomScene::_translateMovement(const CardsMoveStruct &move)
@@ -128,6 +131,10 @@ QString RoomScene::_translateMovement(const CardsMoveStruct &move)
 
 void RoomScene::chooseCard(const ClientPlayer *player, const QString &flags, const QString &reason,
     bool handcard_visible, Card::HandlingMethod method, QList<int> disabled_ids) {
+    Q_UNUSED(reason);
+    Q_UNUSED(method);
+    Q_UNUSED(disabled_ids);
+
     static QChar handcard_flag('h');
     static QChar equip_flag('e');
     static QChar judging_flag('j');
@@ -178,4 +185,46 @@ void RoomScene::chooseCard(const ClientPlayer *player, const QString &flags, con
     emit askToChoosePlayerCard(handcards.toVariantList(),
                                equips.toVariantList(),
                                delayedTricks.toVariantList());
+}
+
+void RoomScene::askForGuanxing(const QList<int> card_ids, bool up_only) {
+    QJsonArray cards;
+    QVariantList capacities;
+    QStringList names;
+
+    if (up_only) {
+        names << "Pile";
+        capacities << 5;
+    } else {
+        names << "Top" << "Bottom";
+        capacities << 5 << 5;
+    }
+
+    foreach (int cid, card_ids) {
+        const Card *card = Sanguosha->getCard(cid);
+        QJsonObject obj;
+        obj.insert("cid", cid);
+        obj.insert("name", card->objectName());
+        obj.insert("suit", card->getSuitString());
+        obj.insert("number", card->getNumber());
+        cards.append(obj);
+    }
+
+    emit showArrangeCardBox(cards, capacities, names);
+}
+
+void RoomScene::arrangeCardsDone(const QVariant &result) {
+    QVariantList results = result.toJsonArray().toVariantList();
+    QList<int> up_cards, down_cards;
+
+    foreach (QVariant id, results.at(0).toJsonArray().toVariantList()) {
+        up_cards << id.toInt();
+    }
+    if (results.length() > 1) {
+        foreach (QVariant id, results.at(1).toJsonArray().toVariantList()) {
+            down_cards << id.toInt();
+        }
+    }
+
+    ClientInstance->onPlayerReplyGuanxing(up_cards, down_cards);
 }

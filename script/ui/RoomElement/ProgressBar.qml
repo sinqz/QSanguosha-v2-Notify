@@ -2,9 +2,9 @@ import QtQuick 2.15
 
 
 Rectangle {
-    property int minValue: 0
-    property int maxValue: 100
-    property int value: 50
+    property real minValue: 0
+    property real maxValue: 100
+    property real value: 50
 
     color: "#171512"
     border.color: "#A9A797"

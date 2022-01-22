@@ -64,7 +64,8 @@ signals:
 public slots:
     void chooseCard(const ClientPlayer *player, const QString &flags, const QString &reason,
     bool handcard_visible, Card::HandlingMethod method, QList<int> disabled_ids);
-
+    void askForGuanxing(const QList<int> card_ids, bool up_only);
+    void arrangeCardsDone(const QVariant &result);
 };
 
 #endif // ROOMSCENE_H

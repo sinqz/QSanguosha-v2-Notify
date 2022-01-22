@@ -13,7 +13,7 @@ MouseArea {
 
     Timer {
         id: showTimer
-        interval: 0
+        interval: 1500
         //running: text.length !== 0 && mouseArea.containsMouse && !tip.visible
         onTriggered: {
             let p = mapToItem(rootWindowItem, mouseX, mouseY)
@@ -39,6 +39,7 @@ MouseArea {
     }
 
     onExited: {
+        showTimer.stop()
         hideTimer.start()
     }
 
